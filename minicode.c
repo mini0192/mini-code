@@ -20,14 +20,6 @@ typedef struct {
     char value[100];
 } Token;
 
-typedef struct {
-    char name[MAX_VAR_NAME];
-    int value;
-} Var;
-
-Var vars[MAX_VARS];
-int varCount = 0;
-
 /**
  * 토큰 파싱
  */
@@ -104,58 +96,93 @@ Token getNextToken(const char **src) {
     return token;
 }
 
-void execute(Token *token) {
-    // 입력
-    if(strcmp(token[0].value, "in") == 0) {
-        if(token[1].type != TOK_STR) {
-            printf("Enter the variable to receive input.\n");
-            return;
+
+typedef struct {
+    char name[MAX_VAR_NAME];
+    int value;
+} Var;
+
+Var vars[MAX_VARS];
+int varCount = 0;
+
+/**
+ * 이름으로 변수 찾기
+ */
+int getVarIndex(const char *name) {
+    for (int i = 0; i < varCount; i++) {
+        if (strcmp(vars[i].name, name) == 0) {
+            return i;
         }
-        for (int i = 0; i < varCount; i++) {
-            if (strcmp(vars[i].name, token[1].value) == 0) {
-                scanf("%d", &vars[i].value);
-                return;
-            }
-        }
-        printf("Error: Variable '%s' not found.\n", token[1].value);
-        return;
     }
-    
+    return -1;
+}
+
+
+
+// 오류
+void error(const char *errorMessage) {
+    printf("Error: %s\n", errorMessage);
+    exit(1);
+}
+
+/**
+ * 변수를 찾을 수 없음
+ */
+void notFoundVarError(char *name) {
+    char *message;
+    sprintf(message, "Variable '%s' not found.", name);
+    error(message);
+}
+
+/**
+ * 문법 오류
+ */
+void syntaxError(char *errorMessage) {
+    char *message;
+    sprintf(message, "Syntax Error %s", errorMessage);
+    error(message);
+}
+
+/**
+ * 파일 오픈 오류
+ */
+void fileError(char *errorMessage) {
+    char *message;
+    sprintf(message, "File Error %s", errorMessage);
+    error(message);
+}
+
+
+void execute(Token *token) {
+
     // 출력
     if(strcmp(token[0].value, "out") == 0) {
+        // 문자열이라면
         if (token[1].type == TOK_STRDATA) {
             printf("%s\n", token[1].value);
-        } else if (token[1].type == TOK_STR) {
-            for (int i = 0; i < varCount; i++) {
-                if (strcmp(vars[i].name, token[1].value) == 0) {
-                    printf("%d\n", vars[i].value);
-                    return;
-                }
-            }
-            printf("Error: Variable '%s' not found.\n", token[1].value);
+            return;
         }
-        return;
+        
+        // 변수라면
+        if (token[1].type == TOK_STR) {
+            Token varNameToken = token[1];
+
+            int varIndex = getVarIndex(varNameToken.value);
+            if(varIndex == -1) notFoundVarError(varNameToken.value);
+            
+            printf("%d\n", vars[varIndex].value);
+            return;
+        }
+        syntaxError("Please enter your input values.");
     }
 
     // 변수 선언
     if(strcmp(token[0].value, "var") == 0) {
         Token varNameToken = token[1];
-        Token varValueToken = token[3];
+        Token varValueToken = token[2];
 
-        if(strcmp(token[2].value, "=") != 0) {
-            printf("Error: Variables need to be initialized.\n");
-            return;
-        }
-
-        if(varCount >= MAX_VARS) {
-            printf("Error: Maximum number of variables reached.\n");
-            return;
-        }
-
-        if(varNameToken.type != TOK_STR) {
-            printf("Error: Invalid variable name.\n");
-            return;
-        }
+        if(varCount >= MAX_VARS)                syntaxError("Maximum number of variables reached.");
+        if(varNameToken.type != TOK_STR)        syntaxError("Invalid variable name.\n");
 
         strcpy(vars[varCount].name, varNameToken.value);
         vars[varCount].value = atoi(varValueToken.value);
@@ -166,49 +193,42 @@ void execute(Token *token) {
 
     // 변수 수정
     if(strcmp(token[0].value, "set") == 0) {
-        if (token[1].type != TOK_STR) {
-            printf("Error: Invalid syntax for 'set'. Correct syntax: set <variable_name> <value>\n");
-            return;
-        }
+        Token varNameToken = token[1];
+        int data = 0;
+        
+        if (varNameToken.type != TOK_STR) syntaxError("Invalid syntax for 'set'. Correct syntax: set <variable_name> <value>");
+        int varIndex = getVarIndex(varNameToken.value);
+        if(varIndex == -1) notFoundVarError(varNameToken.value);
 
-        if(strcmp(token[2].value, "=") != 0) {
-            printf("Error: Variables need to be initialized.\n");
-            return;
-        }
+        if(token[2].type == TOK_STR) {
+            Token inputFunc = token[2];
 
-        for (int i = 0; i < varCount; i++) {
-            if (strcmp(vars[i].name, token[1].value) == 0) {
-                vars[i].value = atoi(token[3].value);
-                return;
+            if(strcmp(inputFunc.value, "in") == 0) {
+                scanf("%d", &data);
             }
         }
-        
-        printf("Error: Variable '%s' not found.\n", token[1].value);
+
+        if(token[2].type == TOK_NUMBER) {
+            data = atoi(token[2].value);
+        }
+
+        vars[varIndex].value = atoi(token[2].value);
         return;
     }
 
-    printf("This is an unknown phrase.\n");
+    syntaxError("This is an unknown phrase.");
 }
 
-int main(int argc, char *argv[]) {
 
-    if (argc < 2) {
-        printf("Error: No file provided.\n");
-        return 1;
-    }
+int main(int argc, char *argv[]) {
+    if (argc < 2) fileError("No file provided.");
     
     const char *filename = argv[1];
     const char *ext = strrchr(filename, '.');
-    if (ext == NULL || strcmp(ext, ".mini") != 0) {
-        printf("Error: The file must have a '.mini' extension.\n");
-        return 1;
-    }
+    if (ext == NULL || strcmp(ext, ".mini") != 0) fileError("The file must have a '.mini' extension.");
 
     FILE *file = fopen(filename, "r");
-    if (file == NULL) {
-        printf("Can't open file.\n");
-        return 1;
-    }
+    if (file == NULL) fileError("Can't open file.");
 
     char line[256];
     while (fgets(line, sizeof(line), file)) {
@@ -226,6 +246,7 @@ int main(int argc, char *argv[]) {
         if(allToken[0].type == TOK_STR) {
             execute(allToken);
         }
+        memset(allToken, 0, sizeof(allToken));
     }
 
     return 0;

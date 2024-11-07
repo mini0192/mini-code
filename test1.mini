@@ -1,14 +1,7 @@
-var data = 50
+var data 50
 out "Var Data print"
 out data
-out ""
 
-in data
+set data 10
 out "Input Var Data print"
 out data
-out ""
-
-set data = 30
-out "Set Var Data print"
-out data
-out ""
