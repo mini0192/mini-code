@@ -191,7 +191,20 @@ void execute(Token *token) {
 }
 
 int main(int argc, char *argv[]) {
-    FILE *file = fopen(argv[1], "r");
+
+    if (argc < 2) {
+        printf("Error: No file provided.\n");
+        return 1;
+    }
+    
+    const char *filename = argv[1];
+    const char *ext = strrchr(filename, '.');
+    if (ext == NULL || strcmp(ext, ".mini") != 0) {
+        printf("Error: The file must have a '.mini' extension.\n");
+        return 1;
+    }
+
+    FILE *file = fopen(filename, "r");
     if (file == NULL) {
         printf("Can't open file.\n");
         return 1;
