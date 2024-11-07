@@ -152,71 +152,105 @@ void fileError(char *errorMessage) {
     error(message);
 }
 
+char *str = NULL;
+
+int data1 = -1;
+int data2 = -1;
+
+/**
+ * 0 문자열이 저장됨
+ * 1 data1에 반환값이 들어가 있음
+ */
+int type = -1;
+
+short operator = -1; 
 
 void execute(Token *token) {
-
-    // 출력
-    if(strcmp(token[0].value, "out") == 0) {
-        // 문자열이라면
-        if (token[1].type == TOK_STRDATA) {
-            printf("%s\n", token[1].value);
+    if(token->type == TOK_STR) {
+        if(strcmp(token->value, "out") == 0) {
+            execute(++token);
+            if(type == 0) printf("%s", str);
+            if(type == 1) printf("%d", data1);
+            type = -1;
             return;
         }
-        
-        // 변수라면
-        if (token[1].type == TOK_STR) {
-            Token varNameToken = token[1];
 
-            int varIndex = getVarIndex(varNameToken.value);
-            if(varIndex == -1) notFoundVarError(varNameToken.value);
-            
-            printf("%d\n", vars[varIndex].value);
+        if(strcmp(token->value, "next") == 0) {
+            printf("\n");
             return;
         }
-        syntaxError("Please enter your input values.");
-    }
 
-    // 변수 선언
-    if(strcmp(token[0].value, "var") == 0) {
-        Token varNameToken = token[1];
-        Token varValueToken = token[2];
+        if(strcmp(token->value, "var") == 0) {
+            char *name = (++token)->value;
+            if(getVarIndex(name) != -1) syntaxError("error");
+            execute(++token);
 
-        if(varCount >= MAX_VARS)                syntaxError("Maximum number of variables reached.");
-        if(varNameToken.type != TOK_STR)        syntaxError("Invalid variable name.\n");
+            strcpy(vars[varCount].name, name);
+            if(type == 1) {
+                vars[varCount].value = data1;
+                type = -1;
+            }
+            varCount++;
+            return;
+        }
 
-        strcpy(vars[varCount].name, varNameToken.value);
-        vars[varCount].value = atoi(varValueToken.value);
-        varCount++;
+        int index = getVarIndex(token->value);
+        if(index != -1) {
+            if(type == -1) {
+                data1 = vars[index].value;
+                type = 1;
+                execute(++token);
+                return;
+            }
 
-        return;
-    }
-
-    // 변수 수정
-    if(strcmp(token[0].value, "set") == 0) {
-        Token varNameToken = token[1];
-        int data = 0;
-        
-        if (varNameToken.type != TOK_STR) syntaxError("Invalid syntax for 'set'. Correct syntax: set <variable_name> <value>");
-        int varIndex = getVarIndex(varNameToken.value);
-        if(varIndex == -1) notFoundVarError(varNameToken.value);
-
-        if(token[2].type == TOK_STR) {
-            Token inputFunc = token[2];
-
-            if(strcmp(inputFunc.value, "in") == 0) {
-                scanf("%d", &data);
+            if(type == 1) {
+                data2 = vars[index].value;
             }
         }
 
-        if(token[2].type == TOK_NUMBER) {
-            data = atoi(token[2].value);
-        }
-
-        vars[varIndex].value = atoi(token[2].value);
         return;
     }
 
-    syntaxError("This is an unknown phrase.");
+    if(token->type == TOK_STRDATA) {
+        str = token->value;
+        type = 0;
+        return;
+    }
+
+    if(token->type == TOK_NUMBER) {
+        if(type == -1) {
+            data1 = atoi(token->value);
+            type = 1;
+            execute(++token);
+            return;
+        }
+        
+        if(type == 1) {
+            data2 = atoi(token->value);
+            return;
+        }
+    }
+
+    if(token->type == TOK_SIGN) {
+        if(strcmp(token->value, "+") == 0) {
+            execute(++token);
+            data1 += data2;
+        }
+        else if(strcmp(token->value, "-") == 0) {
+            execute(++token);
+            data1 -= data2;
+        }
+        else if(strcmp(token->value, "*") == 0) {
+            execute(++token);
+            data1 *= data2;
+        }
+        else if(strcmp(token->value, "/") == 0) {
+            execute(++token);
+            data1 /= data2;
+        }
+        
+        return;
+    }
 }
 
 
@@ -233,20 +267,31 @@ int main(int argc, char *argv[]) {
     char line[256];
     while (fgets(line, sizeof(line), file)) {
         const char *src = line;
-        Token allToken[10];
-        int index = 0;
+        Token *allToken = (Token *)malloc(sizeof(Token) * 10);
+        if (!allToken) {
+            fileError("Memory allocation failed.");
+        }
 
-        while(1) {
+        int index = 0;
+        while (1) {
             Token token = getNextToken(&src);
-            if(token.type == TOK_EOF) break;
             allToken[index] = token;
             index++;
+            if (token.type == TOK_EOF) break;
+
+            if (index >= 10) {
+                allToken = (Token *)realloc(allToken, sizeof(Token) * (index + 10));
+                if (!allToken) {
+                    fileError("Memory allocation failed.");
+                }
+            }
         }
 
-        if(allToken[0].type == TOK_STR) {
+        if (allToken[0].type == TOK_STR) {
             execute(allToken);
         }
-        memset(allToken, 0, sizeof(allToken));
+
+        free(allToken);
     }
 
     return 0;

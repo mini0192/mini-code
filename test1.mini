@@ -1,7 +1,6 @@
-var data 50
-out "Var Data print"
-out data
+var a 30 + 4
+var b 40 + 50
+var c 500
 
-set data 10
-out "Input Var Data print"
-out data
+out b + a
+next
