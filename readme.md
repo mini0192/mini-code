@@ -31,14 +31,14 @@ var 변수명 = 3
 ```
 out "print"
 ```
-> print
+> 출력 값: print
 
 #### 변수 출력
 ```
 var data = 3
 out data
 ```
-> 3
+> 출력 값: 3
 
 ### 입력
 ```
