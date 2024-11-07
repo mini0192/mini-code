@@ -1,0 +1,14 @@
+var data = 50
+out "Var Data print"
+out data
+out ""
+
+in data
+out "Input Var Data print"
+out data
+out ""
+
+set data = 30
+out "Set Var Data print"
+out data
+out ""

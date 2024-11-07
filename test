@@ -1,0 +1,4 @@
+var data = 3
+out data
+in data
+out data
