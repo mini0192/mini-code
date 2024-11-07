@@ -22,7 +22,7 @@ gcc minicode.c -o minicode
 
 ### 변수 선언
 ```
-var 변수명 = 3
+var data = 3
 ```
 변수명은 영어로만 구성되어야 하며, 자료형은 따로 지정해 주지 않습니다.
 
