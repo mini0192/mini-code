@@ -22,7 +22,7 @@ gcc minicode.c -o minicode
 
 ### 변수 선언
 ```
-var data = 3
+var data 30
 ```
 변수명은 영어로만 구성되어야 하며, 자료형은 따로 지정해 주지 않습니다.
 
@@ -35,13 +35,14 @@ out "print"
 
 #### 변수 출력
 ```
-var data = 3
+var data 30
 out data
 ```
 > 출력 값: 3
 
-### 입력
+### 연산
 ```
-var data = 0;
-in data
+var data 30
+out data + 30
 ```
+> 출력 값: 60
