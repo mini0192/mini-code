@@ -4,6 +4,7 @@
 #include "token.h"
 #include "error.h"
 
+#pragma once
 
 #define MAX_VAR_NAME 50
 #define MAX_VARS 10
@@ -30,13 +31,11 @@ int getVarIndex(const char *name) {
 
 char *str = NULL;
 
-int data1 = -1;
-int data2 = -1;
+int data1 = 0;
+int data2 = 0;
 
 bool isData = false;
 bool isStr = false;
-
-int type = -1;
 
 void execute(Token *token) {
     if(token->type == TOK_STR) {
@@ -45,11 +44,18 @@ void execute(Token *token) {
             if(isStr) {
                 printf("%s", str);
                 isStr = false;
+                return;
             }
             if(isData) {
                 printf("%d", data1);
                 isData = false;
+                return;
             }
+        }
+
+        if(strcmp(token->value, "in") == 0) {
+            scanf("%99d", &data1);
+            isData = true;
             return;
         }
 
@@ -60,7 +66,7 @@ void execute(Token *token) {
 
         if(strcmp(token->value, "var") == 0) {
             char *name = (++token)->value;
-            if(getVarIndex(name) != -1) syntaxError("error");
+            if(getVarIndex(name) != -1) conflictVariable(name);
             execute(++token);
 
             strcpy(vars[varCount].name, name);
@@ -75,13 +81,16 @@ void execute(Token *token) {
         if(strcmp(token->value, "set") == 0) {
             char *name = (++token)->value;
             int index = getVarIndex(name);
-            if(index == -1) syntaxError("error");
+            if(index == -1) notFoundVarError(name);
 
             execute(++token);
             if(isData) {
                 vars[index].value = data1;
                 isData = false;
+            } else {
+                syntaxError();
             }
+            return;
         }
 
         int index = getVarIndex(token->value);
@@ -95,9 +104,9 @@ void execute(Token *token) {
 
             if(isData) {
                 data2 = vars[index].value;
+                return;
             }
         }
-
         return;
     }
 
@@ -125,7 +134,6 @@ void execute(Token *token) {
             data1 /= data2;
             return;
         }
-        
         return;
     }
 
@@ -148,4 +156,5 @@ void execute(Token *token) {
             return;
         }
     }
+    return;
 }

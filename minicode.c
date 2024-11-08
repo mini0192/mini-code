@@ -9,21 +9,21 @@
 
 
 int main(int argc, char *argv[]) {
-    if (argc < 2) fileError("No file provided.");
+    if (argc < 2) error("FileError: No file provided.");
     
     const char *filename = argv[1];
     const char *ext = strrchr(filename, '.');
-    if (ext == NULL || strcmp(ext, ".mini") != 0) fileError("The file must have a '.mini' extension.");
+    if (ext == NULL || strcmp(ext, ".mini") != 0) error("FileError: The file must have a '.mini' extension.");
 
     FILE *file = fopen(filename, "r");
-    if (file == NULL) fileError("Can't open file.");
+    if (file == NULL) error("FileError: Can't open file.");
 
     char line[256];
     while (fgets(line, sizeof(line), file)) {
         const char *src = line;
         Token *allToken = (Token *)malloc(sizeof(Token) * 10);
         if (!allToken) {
-            fileError("Memory allocation failed.");
+            error("FileError: Memory allocation failed.");
         }
 
         int index = 0;
@@ -36,7 +36,7 @@ int main(int argc, char *argv[]) {
             if (index >= 10) {
                 allToken = (Token *)realloc(allToken, sizeof(Token) * (index + 10));
                 if (!allToken) {
-                    fileError("Memory allocation failed.");
+                    error("FileError: Memory allocation failed.");
                 }
             }
         }

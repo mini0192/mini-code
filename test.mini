@@ -1,4 +1,23 @@
-var data = 3
-out data
-in data
-out data
+out "input dataA: "
+var dataA in
+
+out "input dataB: "
+var dataB in
+
+out "=================================="
+next
+out "dataA + dataB: "
+out dataA + dataB
+next
+
+out "dataA - dataB: "
+out dataA - dataB
+next
+
+out "dataA * dataB: "
+out dataA * dataB
+next
+
+out "dataA / dataB: "
+out dataA / dataB
+next

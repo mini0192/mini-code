@@ -1,3 +1,0 @@
-var data 30
-set data 60
-out data + 100
