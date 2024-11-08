@@ -6,6 +6,7 @@ var dataB in
 
 out "=================================="
 next
+
 out "dataA + dataB: "
 out dataA + dataB
 next

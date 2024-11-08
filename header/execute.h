@@ -36,125 +36,144 @@ int data2 = 0;
 
 bool isData = false;
 bool isStr = false;
+void execute(Token *token);
+
+void strFunc(Token *token) {
+    if(strcmp(token->value, "out") == 0) {
+        execute(++token);
+        if(isStr) {
+            printf("%s", str);
+            isStr = false;
+            return;
+        }
+        if(isData) {
+            printf("%d", data1);
+            isData = false;
+            return;
+        }
+    }
+
+    if(strcmp(token->value, "in") == 0) {
+        scanf("%99d", &data1);
+        isData = true;
+        return;
+    }
+
+    if(strcmp(token->value, "next") == 0) {
+        printf("\n");
+        return;
+    }
+
+    if(strcmp(token->value, "var") == 0) {
+        char *name = (++token)->value;
+        if(getVarIndex(name) != -1) conflictVariable(name);
+        execute(++token);
+
+        strcpy(vars[varCount].name, name);
+        if(isData) {
+            vars[varCount].value = data1;
+            isData = false;
+        }
+        varCount++;
+        return;
+    }
+
+    if(strcmp(token->value, "set") == 0) {
+        char *name = (++token)->value;
+        int index = getVarIndex(name);
+        if(index == -1) notFoundVarError(name);
+
+        execute(++token);
+        if(isData) {
+            vars[index].value = data1;
+            isData = false;
+        } else {
+            syntaxError();
+        }
+        return;
+    }
+
+    int index = getVarIndex(token->value);
+    if(index != -1) {
+        if(!isData) {
+            data1 = vars[index].value;
+            isData = true;
+            execute(++token);
+            return;
+        }
+
+        if(isData) {
+            data2 = vars[index].value;
+            return;
+        }
+    }
+}
+
+void signFunc(Token *token) {
+    if(isData && strcmp(token->value, "+") == 0) {
+        execute(++token);
+        data1 += data2;
+        return;
+    }
+    
+    if(isData && strcmp(token->value, "-") == 0) {
+        execute(++token);
+        data1 -= data2;
+        return;
+    }
+    
+    if(isData && strcmp(token->value, "*") == 0) {
+        execute(++token);
+        data1 *= data2;
+        return;
+    }
+    
+    if(isData && strcmp(token->value, "/") == 0) {
+        execute(++token);
+        data1 /= data2;
+        return;
+    }
+}
+
+void strdataFunc(Token *token) {
+    str = token->value;
+    isStr = true;
+    return;
+}
+
+void numberFunc(Token * token) {
+    if(!isData) {
+        data1 = atoi(token->value);
+        isData = true;
+        execute(++token);
+        return;
+    }
+    
+    if(isData) {
+        data2 = atoi(token->value);
+        return;
+    }
+}
 
 void execute(Token *token) {
     if(token->type == TOK_STR) {
-        if(strcmp(token->value, "out") == 0) {
-            execute(++token);
-            if(isStr) {
-                printf("%s", str);
-                isStr = false;
-                return;
-            }
-            if(isData) {
-                printf("%d", data1);
-                isData = false;
-                return;
-            }
-        }
-
-        if(strcmp(token->value, "in") == 0) {
-            scanf("%99d", &data1);
-            isData = true;
-            return;
-        }
-
-        if(strcmp(token->value, "next") == 0) {
-            printf("\n");
-            return;
-        }
-
-        if(strcmp(token->value, "var") == 0) {
-            char *name = (++token)->value;
-            if(getVarIndex(name) != -1) conflictVariable(name);
-            execute(++token);
-
-            strcpy(vars[varCount].name, name);
-            if(isData) {
-                vars[varCount].value = data1;
-                isData = false;
-            }
-            varCount++;
-            return;
-        }
-
-        if(strcmp(token->value, "set") == 0) {
-            char *name = (++token)->value;
-            int index = getVarIndex(name);
-            if(index == -1) notFoundVarError(name);
-
-            execute(++token);
-            if(isData) {
-                vars[index].value = data1;
-                isData = false;
-            } else {
-                syntaxError();
-            }
-            return;
-        }
-
-        int index = getVarIndex(token->value);
-        if(index != -1) {
-            if(!isData) {
-                data1 = vars[index].value;
-                isData = true;
-                execute(++token);
-                return;
-            }
-
-            if(isData) {
-                data2 = vars[index].value;
-                return;
-            }
-        }
+        strFunc(token);
         return;
     }
 
     if(token->type == TOK_SIGN) {
-        if(isData && strcmp(token->value, "+") == 0) {
-            execute(++token);
-            data1 += data2;
-            return;
-        }
-        
-        if(isData && strcmp(token->value, "-") == 0) {
-            execute(++token);
-            data1 -= data2;
-            return;
-        }
-        
-        if(isData && strcmp(token->value, "*") == 0) {
-            execute(++token);
-            data1 *= data2;
-            return;
-        }
-        
-        if(isData && strcmp(token->value, "/") == 0) {
-            execute(++token);
-            data1 /= data2;
-            return;
-        }
+        signFunc(token);
         return;
     }
 
     if(token->type == TOK_STRDATA) {
-        str = token->value;
-        isStr = true;
+        strdataFunc(token);
         return;
     }
 
     if(token->type == TOK_NUMBER) {
-        if(!isData) {
-            data1 = atoi(token->value);
-            isData = true;
-            execute(++token);
-            return;
-        }
-        
-        if(isData) {
-            data2 = atoi(token->value);
-            return;
-        }
+        numberFunc(token);
+        return;
     }
     return;
 }
