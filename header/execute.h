@@ -156,7 +156,7 @@ void numberFunc(Token * token) {
 }
 
 void execute(Token *token) {
-    if(token->type == TOK_STR) {
+    if(token->type == TOK_VAR) {
         strFunc(token);
         return;
     }

@@ -7,6 +7,9 @@
 #include "header/error.h"
 #include "header/execute.h"
 
+void tokenPrint(Token token) {
+    printf("Type: %s, Value: %s\n", token.type, token.value);
+}
 
 int main(int argc, char *argv[]) {
     if (argc < 2) error("FileError: No file provided.");
@@ -29,6 +32,7 @@ int main(int argc, char *argv[]) {
         int index = 0;
         while (1) {
             Token token = getNextToken(&src);
+            tokenPrint(token);
             allToken[index] = token;
             index++;
             if (token.type == TOK_EOF) break;
@@ -40,11 +44,8 @@ int main(int argc, char *argv[]) {
                 }
             }
         }
-
-        if (allToken[0].type == TOK_STR) {
-            execute(allToken);
-        }
-
+        execute(allToken);
+        
         free(allToken);
     }
 

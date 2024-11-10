@@ -1,10 +1,13 @@
 #pragma once
 
 typedef enum {
+    TOK_VAR,
+    TOK_OUT,
+    TOK_IN,
+
     TOK_UNKNOWN,
     TOK_EOF,
     TOK_SIGN,
-    TOK_STR,
     TOK_STRDATA,
     TOK_NUMBER,
 } TokenType;
@@ -44,13 +47,23 @@ Token getNextToken(const char **src) {
 
     // 영어라면
     if(isalpha(**src)) {
+        char str[254];
         int i = 0;
         while(isalpha(**src)) {
-            token.value[i++] = **src;
+            str[i++] = **src;
             (*src)++;
         }
-        token.value[i] = '\0';
-        token.type = TOK_STR;
+
+        if(strcmp(str, "out") == 0) {
+            token.type = TOK_OUT;
+        }
+        else if(strcmp(str, "in") == 0) {
+            token.type = TOK_IN;
+        }
+        else {
+            token.type = TOK_VAR;
+            strcmp(token.value, str);
+        }
         return token;
     }
 

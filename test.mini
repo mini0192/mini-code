@@ -1,24 +1,2 @@
 out "input dataA: "
-var dataA in
-
-out "input dataB: "
-var dataB in
-
-out "=================================="
-next
-
-out "dataA + dataB: "
-out dataA + dataB
-next
-
-out "dataA - dataB: "
-out dataA - dataB
-next
-
-out "dataA * dataB: "
-out dataA * dataB
-next
-
-out "dataA / dataB: "
-out dataA / dataB
-next
+in
