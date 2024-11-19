@@ -1,30 +1,19 @@
-#include<stdio.h>
-#include<stdlib.h>
+#include <iostream>
+#include <stdexcept>
+#include <string>
 
 #pragma once
 
-// 오류
-void error(const char *errorMessage) {
-    printf("\n");
-    printf("%s\n", errorMessage);
-    exit(1);
-}
+class SyntaxError : public std::exception {
+private:
+    std::string message;
 
-/**
- * 변수를 찾을 수 없음
- */
-void notFoundVarError(char *name) {
-    char message[256];
-    sprintf(message, "Variable Error: Variable '%s' not found.", name);
-    error(message);
-}
+public:
+    SyntaxError(const std::string& msg) {
+        message = msg;
+    }
 
-void conflictVariable(char *name) {
-    char message[256];
-    sprintf(message, "Variable Error: Variable name '%s' conflict.", name);
-    error(message);
-}
-
-void syntaxError() {
-    error("SyntaxError: Uninterpretable");
-}
+    const char* what() const noexcept override {
+        return message.c_str();
+    }
+};

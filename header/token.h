@@ -1,101 +1,109 @@
+#include <iostream>
+#include <string>
+#include <cctype>
+#include <cstring>
+#include <sstream>
+#include <queue>
+#include <cstdlib>
+
+#include "error.h"
+
 #pragma once
 
-typedef enum {
+enum TokenType {
     TOK_VAR,
     TOK_OUT,
     TOK_IN,
-
     TOK_UNKNOWN,
     TOK_EOF,
     TOK_SIGN,
     TOK_STRDATA,
     TOK_NUMBER,
-} TokenType;
+};
 
-typedef struct {
+class Token {
+public:
     TokenType type;
-    char value[100];
-} Token;
+    TokenType valueType;
+    std::string value;
 
-Token getNextToken(const char **src) {
+    Token() {
+        type = TOK_UNKNOWN;
+        value = "";
+    }
+
+    void clear() {
+        type = TOK_UNKNOWN;
+        value.clear();
+    }
+};
+
+void tokenPrint(const Token token) {
+    std::cout << "Type: " << token.type << ", ValueType:" << token.valueType << ", Value: " << token.value << std::endl;
+}
+
+
+Token getToken(std::stringstream& ss) {
     Token token;
-    token.type = TOK_UNKNOWN;
-    token.value[0] = '\0';
 
-    // 공백 제거
-    while(isspace(**src)) {
-        (*src)++;
+    std::string word;
+    ss >> word;
+
+    if(word == "") {
+        throw SyntaxError("That syntax is incorrect.");
     }
-    
-    // 문장이 끝났다면
-    if(**src == '\0') {
-        token.type = TOK_EOF;
+
+    if(word == "out") {
+        token.type = TOK_OUT;
+        
+        Token nextToken = getToken(ss);
+        token.valueType = nextToken.type;
+        token.value = nextToken.value;
+
         return token;
     }
 
-    // 숫자라면
-    if(isdigit(**src)) {
-        int i = 0;
-        while (isdigit(**src)) {
-            token.value[i++] = **src;
-            (*src)++;
-        }
-        token.value[i] = '\0';
+    if(word == "in") {
+        token.type = TOK_IN;
+
+        Token nextToken = getToken(ss);
+        token.valueType = nextToken.type;
+        token.value = nextToken.value;
+
+        return token;
+    }
+
+    if (word.front() == '"' && word.back() == '"') {
+        token.type = TOK_STRDATA;
+        token.value = word.substr(1, word.length() - 2);
+        return token;
+    }
+
+    std::stringstream numStream(word);
+    int intValue;
+    float floatValue;
+
+    if (numStream >> intValue && numStream.eof()) {
         token.type = TOK_NUMBER;
+        token.value = std::to_string(intValue);
+        std::cout << "GOOD" << std::endl;
         return token;
     }
 
-    // 영어라면
-    if(isalpha(**src)) {
-        char str[254];
-        int i = 0;
-        while(isalpha(**src)) {
-            str[i++] = **src;
-            (*src)++;
-        }
+    token.type = TOK_VAR;
+    Token nextToken = getToken(ss);
+    token.valueType = nextToken.type;
+    token.value = nextToken.value;
+    
+    return token;
+}
 
-        if(strcmp(str, "out") == 0) {
-            token.type = TOK_OUT;
-        }
-        else if(strcmp(str, "in") == 0) {
-            token.type = TOK_IN;
-        }
-        else {
-            token.type = TOK_VAR;
-            strcmp(token.value, str);
-        }
-        return token;
-    }
+Token getNextToken(std::string src) {
 
-    // 문자열이라면
-    if(**src == '"') {
-        (*src)++;
-        int i = 0;
-        while(**src != '"' && **src != '\0') {
-            token.value[i++] = **src;
-            (*src)++;
-        }
-        token.value[i] = '\0';
-        if(**src == '"') {
-            (*src)++;
-            token.type = TOK_STRDATA;
-        }
-        return token;
-    }
+    std::stringstream ss(src);
+    std::string part;
 
-    // 특수 문자라면
-    if(ispunct(**src)) {
-        token.type = TOK_SIGN;
-        token.value[0] = **src;
-        token.value[1] = '\0';
-        (*src)++;
-        return token;
-    }
-
-    token.value[0] = **src;
-    token.value[1] = '\0';
-    token.type = TOK_UNKNOWN;
-    (*src)++;
-
+    Token token = getToken(ss);
+    tokenPrint(token);
     return token;
 }

@@ -1,90 +1,91 @@
-#include<string.h>
-#include<stdbool.h>
+#include <iostream>
+#include <string>
+#include <vector>
+#include <stdexcept>
 
 #include "token.h"
 #include "error.h"
 
 #pragma once
 
-#define MAX_VAR_NAME 50
-#define MAX_VARS 10
+constexpr int MAX_VAR_NAME = 50;
+constexpr int MAX_VARS = 10;
 
-typedef struct {
-    char name[MAX_VAR_NAME];
+class Var {
+public:
+    std::string name;
     int value;
-} Var;
 
-Var vars[MAX_VARS];
+    Var(const std::string& name, int value) : name(name), value(value) {}
+};
+
+std::vector<Var> vars;  // 가변 크기의 변수 목록
 int varCount = 0;
+
+bool isData = false;
+bool isStr = false;
+int data1 = 0;
+int data2 = 0;
+std::string str;  // 문자열을 처리하기 위한 변수
 
 /**
  * 이름으로 변수 찾기
  */
-int getVarIndex(const char *name) {
+int getVarIndex(const std::string& name) {
     for (int i = 0; i < varCount; i++) {
-        if (strcmp(vars[i].name, name) == 0) {
+        if (vars[i].name == name) {
             return i;
         }
     }
     return -1;
 }
 
-char *str = NULL;
+void execute(std::vector<Token> token);
 
-int data1 = 0;
-int data2 = 0;
-
-bool isData = false;
-bool isStr = false;
-void execute(Token *token);
-
-void strFunc(Token *token) {
-    if(strcmp(token->value, "out") == 0) {
+void strFunc(Token* token) {
+    if (token->value == "out") {
         execute(++token);
-        if(isStr) {
-            printf("%s", str);
+        if (isStr) {
+            std::cout << str;
             isStr = false;
             return;
         }
-        if(isData) {
-            printf("%d", data1);
+        if (isData) {
+            std::cout << data1;
             isData = false;
             return;
         }
     }
 
-    if(strcmp(token->value, "in") == 0) {
-        scanf("%99d", &data1);
+    if (token->value == "in") {
+        std::cin >> data1;
         isData = true;
         return;
     }
 
-    if(strcmp(token->value, "next") == 0) {
-        printf("\n");
+    if (token->value == "next") {
+        std::cout << std::endl;
         return;
     }
 
-    if(strcmp(token->value, "var") == 0) {
-        char *name = (++token)->value;
-        if(getVarIndex(name) != -1) conflictVariable(name);
+    if (token->value == "var") {
+        std::string name = (++token)->value;
+        if (getVarIndex(name) != -1) conflictVariable(name);
         execute(++token);
 
-        strcpy(vars[varCount].name, name);
-        if(isData) {
-            vars[varCount].value = data1;
-            isData = false;
-        }
+        vars.push_back(Var(name, isData ? data1 : 0));
+        isData = false;
         varCount++;
         return;
     }
 
-    if(strcmp(token->value, "set") == 0) {
-        char *name = (++token)->value;
+    if (token->value == "set") {
+        std::string name = (++token)->value;
         int index = getVarIndex(name);
-        if(index == -1) notFoundVarError(name);
+        if (index == -1) notFoundVarError(name);
 
         execute(++token);
-        if(isData) {
+        if (isData) {
             vars[index].value = data1;
             isData = false;
         } else {
@@ -94,84 +95,89 @@ void strFunc(Token *token) {
     }
 
     int index = getVarIndex(token->value);
-    if(index != -1) {
-        if(!isData) {
+    if (index != -1) {
+        if (!isData) {
             data1 = vars[index].value;
             isData = true;
             execute(++token);
             return;
         }
 
-        if(isData) {
+        if (isData) {
             data2 = vars[index].value;
             return;
         }
     }
 }
 
-void signFunc(Token *token) {
-    if(isData && strcmp(token->value, "+") == 0) {
+void signFunc(std::vector<Token> token) {
+    if (isData && token->value == "+") {
         execute(++token);
         data1 += data2;
         return;
     }
-    
-    if(isData && strcmp(token->value, "-") == 0) {
+
+    if (isData && token->value == "-") {
         execute(++token);
         data1 -= data2;
         return;
     }
-    
-    if(isData && strcmp(token->value, "*") == 0) {
+
+    if (isData && token->value == "*") {
         execute(++token);
         data1 *= data2;
         return;
     }
-    
-    if(isData && strcmp(token->value, "/") == 0) {
+
+    if (isData && token->value == "/") {
         execute(++token);
-        data1 /= data2;
+        if (data2 != 0) {
+            data1 /= data2;
+        } else {
+            std::cerr << "Error: Division by zero!" << std::endl;
+            exit(1);
+        }
         return;
     }
 }
 
-void strdataFunc(Token *token) {
+void strdataFunc(Token* token) {
     str = token->value;
     isStr = true;
     return;
 }
 
-void numberFunc(Token * token) {
-    if(!isData) {
-        data1 = atoi(token->value);
+void numberFunc(Token* token) {
+    if (!isData) {
+        data1 = std::stoi(token->value);  // std::stoi로 문자열을 정수로 변환
         isData = true;
         execute(++token);
         return;
     }
-    
-    if(isData) {
-        data2 = atoi(token->value);
+
+    if (isData) {
+        data2 = std::stoi(token->value);
         return;
     }
 }
 
-void execute(Token *token) {
-    if(token->type == TOK_VAR) {
+void execute(Token* token) {
+    if (token->type == TOK_VAR) {
         strFunc(token);
         return;
     }
 
-    if(token->type == TOK_SIGN) {
+    if (token->type == TOK_SIGN) {
         signFunc(token);
         return;
     }
 
-    if(token->type == TOK_STRDATA) {
+    if (token->type == TOK_STRDATA) {
         strdataFunc(token);
         return;
     }
 
-    if(token->type == TOK_NUMBER) {
+    if (token->type == TOK_NUMBER) {
         numberFunc(token);
         return;
     }
