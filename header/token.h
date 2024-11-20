@@ -1,51 +1,84 @@
 #include <iostream>
 #include <string>
-#include <cctype>
-#include <cstring>
 #include <sstream>
-#include <queue>
-#include <cstdlib>
+#include <memory>
 
 #include "error.h"
 
 #pragma once
 
 enum TokenType {
+    TOK_TYPE_NUM,
+    TOK_TYPE_STR,
+    TOK_TYPE_BOOL,
     TOK_VAR,
+
     TOK_OUT,
     TOK_IN,
-    TOK_UNKNOWN,
-    TOK_EOF,
+
     TOK_SIGN,
     TOK_STRDATA,
     TOK_NUMBER,
+    TOK_STR,
+
+    TOK_UNKNOWN,
+    TOK_EOF,
 };
 
 class Token {
-public:
+private:
     TokenType type;
-    TokenType valueType;
+    std::shared_ptr<Token> nextToken;
     std::string value;
 
-    Token() {
-        type = TOK_UNKNOWN;
-        value = "";
-    }
+public:
+    Token() :
+        type(TOK_UNKNOWN),
+        nextToken(nullptr),
+        value("")
+    {}
 
     void clear() {
         type = TOK_UNKNOWN;
+        nextToken = NULL;
         value.clear();
+    }
+
+    TokenType getType() {
+        return type;
+    }
+
+    void setType(TokenType type) {
+        this->type = type;
+    }
+
+    std::shared_ptr<Token> getNextToken() {
+        return nextToken;
+    }
+
+    void setNextToken(std::shared_ptr<Token> nextToken) {
+        this->nextToken = nextToken;
+    } 
+
+    std::string getValue() {
+        return value;
+    }
+
+    void setValue(std::string value) {
+        this->value = value;
     }
 };
 
-void tokenPrint(const Token token) {
-    std::cout << "Type: " << token.type << ", ValueType:" << token.valueType << ", Value: " << token.value << std::endl;
+void tokenPrint(const std::shared_ptr<Token> token) {
+    if(token->getNextToken()) {
+        tokenPrint(token->getNextToken());
+    }
+    std::cout << "Type: " << token->getType() << ", Value: " << token->getValue() << std::endl;
 }
 
 
-Token getToken(std::stringstream& ss) {
-    Token token;
-
+std::shared_ptr<Token> getToken(std::stringstream& ss) {
+    std::shared_ptr<Token> token = std::make_shared<Token>();
     std::string word;
     ss >> word;
 
@@ -53,29 +86,45 @@ Token getToken(std::stringstream& ss) {
         throw SyntaxError("That syntax is incorrect.");
     }
 
+    if(word == "num") {
+        token->setType(TOK_TYPE_NUM);
+        token->setNextToken(getToken(ss));
+
+        return token;
+    }
+
+    if(word == "str") {
+        token->setType(TOK_TYPE_STR);
+        token->setNextToken(getToken(ss));
+
+        return token;
+    }
+    
+    if(word == "bool") {
+        token->setType(TOK_TYPE_BOOL);
+        token->setNextToken(getToken(ss));
+
+        return token;
+    }
+
     if(word == "out") {
-        token.type = TOK_OUT;
-        
-        Token nextToken = getToken(ss);
-        token.valueType = nextToken.type;
-        token.value = nextToken.value;
+        token->setType(TOK_OUT);
+        token->setNextToken(getToken(ss));
 
         return token;
     }
 
     if(word == "in") {
-        token.type = TOK_IN;
-
-        Token nextToken = getToken(ss);
-        token.valueType = nextToken.type;
-        token.value = nextToken.value;
+        token->setType(TOK_IN);
+        token->setNextToken(getToken(ss));
 
         return token;
     }
 
     if (word.front() == '"' && word.back() == '"') {
-        token.type = TOK_STRDATA;
-        token.value = word.substr(1, word.length() - 2);
+        token->setType(TOK_STRDATA);
+        token->setValue(word.substr(1, word.length() - 2));
+
         return token;
     }
 
@@ -84,26 +133,21 @@ Token getToken(std::stringstream& ss) {
     float floatValue;
 
     if (numStream >> intValue && numStream.eof()) {
-        token.type = TOK_NUMBER;
-        token.value = std::to_string(intValue);
-        std::cout << "GOOD" << std::endl;
+        token->setType(TOK_NUMBER);
+        token->setValue(std::to_string(intValue));
+
         return token;
     }
 
-    token.type = TOK_VAR;
-    Token nextToken = getToken(ss);
-    token.valueType = nextToken.type;
-    token.value = nextToken.value;
-    
-    return token;
+    token->setType(TOK_STR);
+    token->setValue(word);
 }
 
-Token getNextToken(std::string src) {
-
+std::shared_ptr<Token> getNextToken(std::string src) {
     std::stringstream ss(src);
     std::string part;
 
-    Token token = getToken(ss);
+    std::shared_ptr<Token> token = getToken(ss);
     tokenPrint(token);
     return token;
 }
