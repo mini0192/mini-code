@@ -47,16 +47,15 @@ public:
     }
 };
 
-template <typename T>
 class VariableArea {
 private:
     int maxSize;
-    T* elements;
+    Variable* elements;
     int topIndex;
 
     void resize() {
         maxSize *= 2;
-        T* newElements = new T[maxSize];
+        Variable* newElements = new Variable[maxSize];
         for (int i = 0; i <= topIndex; ++i) {
             newElements[i] = elements[i];
         }
@@ -67,34 +66,38 @@ private:
 public:
     VariableArea() :
         maxSize(10),
-        topIndex(-1),
-        elements(new T[maxSize])
+        topIndex(0),
+        elements(new Variable[maxSize])
     {}
 
     ~VariableArea() {
         delete[] elements;
     }
 
-    void push(T data) {
+    void push(Variable data) {
         if(topIndex >= maxSize) {
             resize();
         }
-        elements[++topIndex] = data;
+        elements[topIndex++] = data;
     }
 
-    T pop() {
-        return elements[topIndex--];
+    Variable pop() {
+        return elements[--topIndex];
     }
 
-    T get(int index) {
-        return elements[index];
+    Variable findByName(std::string name) {
+        for(int i = 0; i < topIndex; i++) {
+            if(elements[i].getName() == name) {
+                return elements[i];
+            }
+        }
     }
 
     bool isEmpty() {
-        return topIndex < 0;
+        return topIndex <= 0;
     }
 
     int size() {
-        return topIndex + 1;
+        return topIndex;
     }
 };
