@@ -1,5 +1,7 @@
 #include <iostream>
 
+#pragma once
+
 class DataArea {
 private:
     int startPoint;
@@ -25,6 +27,10 @@ public:
         endPoint(0),
         elements(new int[maxSize])
     {}
+
+    ~DataArea() {
+        delete[] elements;
+    }
 
     int pushNumber(int data) {
         int start = endPoint;

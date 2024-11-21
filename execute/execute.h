@@ -1,10 +1,10 @@
 #include <iostream>
 #include <memory>
-#include <stack>
 
 #include "../header/token.h"
 #include "variableAreaImpl.h"
 #include "dataAreaImpl.h"
+#include "functionAreaImpl.h"
 
 #pragma once
 
@@ -28,11 +28,13 @@ private:
     bool NUM_FLAG;
 
     int ALU_REG;
+    ALUType ALU_FLAG;
 
     VariableArea variableArea;
     DataArea dataArea;
 
-    ALUType ALU_FLAG;
+    FunctionArea functionArea;
+    FunctionData functionData;
 
     int handleCalculation(int num1, int num2) {
         if(ALU_FLAG == ALU_STATELESS) throw SyntaxError("Unable to understand the syntax.");
@@ -43,6 +45,13 @@ private:
         ALU_FLAG = ALU_STATELESS;
     }
 
+    bool isNumber(const std::string& s) {
+        for (char const &ch : s) {
+            if (std::isdigit(ch) == 0) return false;
+        }
+        return true;
+    }
+
 public:
     Execute() :
         VAR_NAME_FLAG(false),
@@ -51,11 +60,37 @@ public:
         ALU_FLAG(ALU_STATELESS)
     {}
 
-    void execute(std::shared_ptr<Token> token) {
-        if(token->getNextToken()->getType() != TOK_EOF) execute(token->getNextToken());
+    int execute(std::shared_ptr<Token> token) {
+        if(functionData.isWriting()) {
+            functionData.pushLine(token);
+            if(token->getType() == TOK_DONE) {
+                functionArea.push(functionData);
+                functionData.clear();
+            }
+            return 0;
+        }
+
+        if(token->getNextToken()->getType() != TOK_EOF) {
+            if(execute(token->getNextToken()) == -1) return -1;
+        }
 
         switch (token->getType())
         {
+        case TOK_FUNCTION: {
+            if(!VAR_NAME_FLAG) throw SyntaxError("Function name is missing.");
+            functionData.setName(VAR_NAME_REG);
+            VAR_NAME_FLAG = false;
+            break;
+        }
+
+        case TOK_CALL: {
+            if(!VAR_NAME_FLAG) throw SyntaxError("Function name is missing.");
+            FunctionData* nextFunction = functionArea.findByName(VAR_NAME_REG);
+            for(int i = 0; i < nextFunction->getLineSize(); i++) {
+                execute(nextFunction->getLine(i));
+            }
+        }
+
         case TOK_ADD: {
             ALU_FLAG = ALU_ADD;
             break;
@@ -98,6 +133,31 @@ public:
                 break;
             }
             throw SyntaxError("No element to run \"out\".");
+        }
+        case TOK_IN: {
+            std::string data;
+            std::cin >> data;
+
+            if(isNumber(data)) {
+                if(!NUM_FLAG) {
+                    NUM_REG = std::stoi(data);
+                    NUM_FLAG = true;
+                } else {
+                    NUM_REG = handleCalculation(std::stoi(token->getValue()), NUM_REG);
+                }
+            } else {
+                if(STRDATA_FLAG) throw ProgramError("STRDATA_REG is already in use.");
+
+                STRDATA_REG = data;
+                STRDATA_FLAG = true;
+            }
+            break;
+        }
+        case TOK_IF: {
+            if(!NUM_FLAG) throw SyntaxError("Condition does not exist.");
+            NUM_FLAG = false;
+            if(NUM_REG != 1) return -1;
+            break;
         }
 
         case TOK_TYPE_BOOL: {
@@ -197,6 +257,6 @@ public:
         default: 
             break;
         }
-        return;
+        return 0;
     }
 };

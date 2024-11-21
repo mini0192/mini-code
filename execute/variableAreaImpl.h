@@ -1,4 +1,7 @@
 #include <iostream>
+#include "stack.h"
+
+#pragma once
 
 enum VariableType {
     VAR_NUM,
@@ -47,55 +50,21 @@ public:
     }
 };
 
-class VariableArea {
-private:
-    int maxSize;
-    Variable* elements;
-    int topIndex;
-
-    void resize() {
-        maxSize *= 2;
-        Variable* newElements = new Variable[maxSize];
-        for (int i = 0; i <= topIndex; ++i) {
-            newElements[i] = elements[i];
-        }
-        delete[] elements;
-        elements = newElements;
-    }
-
+class VariableArea : public Stack<Variable> {
 public:
-    VariableArea() :
-        maxSize(10),
-        topIndex(0),
-        elements(new Variable[maxSize])
-    {}
+    using Stack::Stack;
+    using Stack::push;
+    using Stack::pop;
+    using Stack::isEmpty;
+    using Stack::size;
 
-    ~VariableArea() {
-        delete[] elements;
-    }
+    VariableArea() : Stack() {}
+    ~VariableArea() {}
 
-    void push(Variable data) {
-        if(findByName(data.getName())) throw SyntaxError("Variable name is duplicated.");
-        if(topIndex >= maxSize) resize();
-        elements[topIndex++] = data;
-    }
-
-    Variable pop() {
-        return elements[--topIndex];
-    }
-
-    Variable* findByName(std::string name) {
-        for(int i = 0; i < topIndex; i++) {
-            if(elements[i].getName() == name) return &elements[i];
+    Variable* findByName(std::string name) override {
+        for (int i = 0; i < topIndex; i++) {
+            if (this->elements[i].getName() == name) return &this->elements[i];
         }
         return nullptr;
-    }
-
-    bool isEmpty() {
-        return topIndex <= 0;
-    }
-
-    int size() {
-        return topIndex;
     }
 };

@@ -5,8 +5,10 @@
 #include <memory>
 
 #include "header/token.h"
+#include "header/tokenImpl.h"
 #include "header/error.h"
 #include "execute/execute.h"
+#include "execute/functionAreaImpl.h"
 
 int main(int argc, char *argv[]) {
     if (argc < 2) {
@@ -30,15 +32,16 @@ int main(int argc, char *argv[]) {
 
     try {
         while (std::getline(file, line)) {
+            if(line == "") continue;
             lineNumber++;
-            std::cout << "running [" << lineNumber << "]" << std::endl;
+            std::cout << "running[" << lineNumber << "]" << std::endl;
             std::shared_ptr<Token> token = getNextToken(line);
             run.execute(token);
         }
     } catch(ProgramError ex) {
-        std::cerr << "line [" << lineNumber << "] Program Error: " << ex.what() << std::endl;
+        std::cerr << "line[" << lineNumber << "] Program Error: " << ex.what() << std::endl;
     } catch(SyntaxError ex) {
-        std::cerr << "line [" << lineNumber << "] Syntax Error: " << ex.what() << std::endl;
+        std::cerr << "line[" << lineNumber << "] Syntax Error: " << ex.what() << std::endl;
     }
     return 0;
 }
