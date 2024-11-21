@@ -75,9 +75,8 @@ public:
     }
 
     void push(Variable data) {
-        if(topIndex >= maxSize) {
-            resize();
-        }
+        if(findByName(data.getName())) throw SyntaxError("Variable name is duplicated.");
+        if(topIndex >= maxSize) resize();
         elements[topIndex++] = data;
     }
 
@@ -85,12 +84,11 @@ public:
         return elements[--topIndex];
     }
 
-    Variable findByName(std::string name) {
+    Variable* findByName(std::string name) {
         for(int i = 0; i < topIndex; i++) {
-            if(elements[i].getName() == name) {
-                return elements[i];
-            }
+            if(elements[i].getName() == name) return &elements[i];
         }
+        return nullptr;
     }
 
     bool isEmpty() {

@@ -1,1 +1,2 @@
-num data 123
+str data "it is just test"
+out data

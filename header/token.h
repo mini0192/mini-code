@@ -11,8 +11,8 @@ enum TokenType {
     TOK_TYPE_NUM,
     TOK_TYPE_STR,
     TOK_TYPE_BOOL,
-    TOK_VAR,
 
+    TOK_VAR,
     TOK_OUT,
     TOK_IN,
 
@@ -20,6 +20,14 @@ enum TokenType {
     TOK_STRDATA,
     TOK_NUMBER,
     TOK_STR,
+
+    TOK_TRUE,
+    TOK_FALSE,
+
+    TOK_ADD,
+    TOK_SUB,
+    TOK_DIV,
+    TOK_MUL,
 
     TOK_EOF,
 };
@@ -32,12 +40,14 @@ std::string tokenTypeToString(TokenType type) {
         return "TOK_TYPE_STR";
     case TOK_TYPE_BOOL:
         return "TOK_TYPE_BOOL";
+    
     case TOK_VAR:
         return "TOK_VAR";
     case TOK_OUT:
         return "TOK_OUT";
     case TOK_IN:
         return "TOK_IN";
+
     case TOK_SIGN:
         return "TOK_SIGN";
     case TOK_STRDATA:
@@ -46,6 +56,21 @@ std::string tokenTypeToString(TokenType type) {
         return "TOK_NUMBER";
     case TOK_STR:
         return "TOK_STR";
+
+    case TOK_TRUE:
+        return "TOK_TRUE";
+    case TOK_FALSE:
+        return "TOK_FALSE";
+
+    case TOK_ADD:
+        return "TOK_ADD";
+    case TOK_SUB:
+        return "TOK_SUB";
+    case TOK_DIV:
+        return "TOK_DIV";
+    case TOK_MUL:
+        return "TOK_MUL";
+
     case TOK_EOF:
         return "TOK_EOF";
     default:
@@ -112,26 +137,53 @@ std::shared_ptr<Token> getToken(std::stringstream& ss) {
 
     if (word == "") {
         return token;
-    } else if (word == "num") {
-        token->setType(TOK_TYPE_NUM);
+    }
 
+    else if (word == "+") {
+        token->setType(TOK_ADD);
+    } else if (word == "-") {
+        token->setType(TOK_SUB);
+    } else if (word == "/") {
+        token->setType(TOK_DIV);
+    } else if (word == "*") {
+        token->setType(TOK_MUL);
+    }
+    
+    else if (word == "true") {
+        token->setType(TOK_TRUE);
+    } else if (word == "false") {
+        token->setType(TOK_FALSE);
+    }
+    
+    else if (word == "num") {
+        token->setType(TOK_TYPE_NUM);
     } else if (word == "str") {
         token->setType(TOK_TYPE_STR);
-
     } else if (word == "bool") {
         token->setType(TOK_TYPE_BOOL);
-
-    } else if (word == "out") {
+    }
+    
+    else if (word == "out") {
         token->setType(TOK_OUT);
-
     } else if (word == "in") {
         token->setType(TOK_IN);
-
-    } else if (word.front() == '"' && word.back() == '"') {
+    }
+    
+    else if (word.front() == '"') {
         token->setType(TOK_STRDATA);
-        token->setValue(word.substr(1, word.length() - 2));
+        std::string data;
 
-    } else if(token->getType() == TOK_EOF) {
+        while(true) {
+            data += word;
+            if(word.back() == '"') break;
+            data += " ";
+            ss >> word;
+        }
+
+        token->setValue(data.substr(1, data.length() - 2));
+    }
+    
+    else if(token->getType() == TOK_EOF) {
         std::stringstream numStream(word);
         int intValue;
         float floatValue;
@@ -154,5 +206,7 @@ std::shared_ptr<Token> getNextToken(std::string src) {
 
     std::shared_ptr<Token> token = getToken(ss);
     tokenPrint(token);
+    std::cout << std::endl;
+
     return token;
 }

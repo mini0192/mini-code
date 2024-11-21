@@ -10,18 +10,18 @@
 
 int main(int argc, char *argv[]) {
     if (argc < 2) {
-        std::cout << "asd" << std::endl;
+        std::cout << "File Error: File information is missing." << std::endl;
     }
 
     const char *filename = "test.mini";//argv[1];
     const char *ext = strrchr(filename, '.');
     if (ext == NULL || strcmp(ext, ".mini") != 0) {
-        std::cout << "asd" << std::endl;
+        std::cout << "File Error: The file extension is incorrect." << std::endl;
     }
 
     std::ifstream file(filename);
     if (!file.is_open()) {
-        std::cout << "asd" << std::endl;
+        std::cout << "File Error: Failed to open file." << std::endl;
     }
 
     std::string line;
@@ -35,9 +35,10 @@ int main(int argc, char *argv[]) {
             std::shared_ptr<Token> token = getNextToken(line);
             run.execute(token);
         }
+    } catch(ProgramError ex) {
+        std::cerr << "line [" << lineNumber << "] Program Error: " << ex.what() << std::endl;
     } catch(SyntaxError ex) {
-        std::cout << "from line [" << lineNumber << "] -> " << ex.what() << std::endl;
+        std::cerr << "line [" << lineNumber << "] Syntax Error: " << ex.what() << std::endl;
     }
-
     return 0;
 }
