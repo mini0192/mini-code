@@ -8,6 +8,7 @@ enum TokenType {
     TOK_TYPE_NUM,
     TOK_TYPE_STR,
     TOK_TYPE_BOOL,
+    TOK_SAVE,
 
     TOK_VAR,
     TOK_OUT,
@@ -45,6 +46,8 @@ std::string tokenTypeToString(TokenType type) {
         return "TOK_TYPE_STR";
     case TOK_TYPE_BOOL:
         return "TOK_TYPE_BOOL";
+    case TOK_SAVE:
+        return "TOK_SAVE";
     
     case TOK_VAR:
         return "TOK_VAR";

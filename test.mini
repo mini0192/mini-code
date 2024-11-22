@@ -1,6 +1,13 @@
-function test
-    parameter num num13
-    parameter num num2
-done
+function sub
+    parameter num sub1
+    parameter num sub2
+    save
+done sub1 - sub2
 
-call test 3 5
+next out "Test"
+
+function add
+    parameter num add1
+    parameter num add2
+    save
+done add1 + add2

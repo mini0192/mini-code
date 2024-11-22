@@ -4,6 +4,7 @@
 #include "../header/token.h"
 #include "variableAreaImpl.h"
 #include "functionAreaImpl.h"
+#include "variableStackImpl.h"
 
 #pragma once
 
@@ -34,11 +35,11 @@ private:
     int systemVarCount;
 
     VariableArea variableArea;
+    VariableStack variableStack;
     FunctionArea functionArea;
     FunctionData functionData;
 
-    int handleCalculation(int num1, int num2) {
-        if(ALU_FLAG == ALU_STATELESS) throw SyntaxError("Unable to understand the syntax.");
+    int handleNumberCalculation(int num1, int num2) {
         if(ALU_FLAG == ALU_ADD) return num1 + num2;
         if(ALU_FLAG == ALU_SUB) return num1 - num2;
         if(ALU_FLAG == ALU_DIV) return num1 / num2;
@@ -103,6 +104,10 @@ public:
             break;
         }
 
+        case TOK_GIVE: {
+            break;
+        }
+
         case TOK_ADD: {
             ALU_FLAG = ALU_ADD;
             break;
@@ -153,17 +158,17 @@ public:
             std::cin >> data;
 
             if(isNumber(data)) {
-                if(!NUM_FLAG) {
-                    NUM_REG = std::stoi(data);
-                    NUM_FLAG = true;
-                } else {
-                    NUM_REG = handleCalculation(std::stoi(token->getValue()), NUM_REG);
-                }
+                Variable newVar;
+                newVar.setType(VAR_NUM);
+                newVar.setName(SYSTEMVAR + std::to_string(systemVarCount++));
+                newVar.setDataNum(std::stoi(data));
+                variableArea.push(newVar);
             } else {
-                if(STRDATA_FLAG) throw ProgramError("STRDATA_REG is already in use.");
-
-                STRDATA_REG = data;
-                STRDATA_FLAG = true;
+                Variable newVar;
+                newVar.setType(VAR_STR);
+                newVar.setName(SYSTEMVAR + std::to_string(systemVarCount++));
+                newVar.setDataStr(token->getValue());
+                variableArea.push(newVar);
             }
             break;
         }
@@ -188,7 +193,7 @@ public:
             if(data != 0 && data != 1) throw SyntaxError("The bool data type can only store 0 or 1.");
 
             newVar.setDataNum(data);
-            variableArea.push(newVar);
+            variableStack.push(newVar);
 
             VAR_NAME_FLAG = false;
             break;
@@ -205,7 +210,7 @@ public:
             newVar.setName(VAR_NAME_REG);
 
             newVar.setDataNum(var.getDataNum());
-            variableArea.push(newVar);
+            variableStack.push(newVar);
 
             VAR_NAME_FLAG = false;
             break;
@@ -220,9 +225,15 @@ public:
             newVar.setType(VAR_STR);
             newVar.setName(VAR_NAME_REG);
             newVar.setDataStr(var.getDataStr());
-            variableArea.push(newVar);
+            variableStack.push(newVar);
 
             VAR_NAME_FLAG = false;
+            break;
+        }
+        case TOK_SAVE: {
+            while(!variableStack.isEmpty()) {
+                variableArea.push(variableStack.pop());
+            }
             break;
         }
 
@@ -236,11 +247,26 @@ public:
                     newVar.setDataStr(var->getDataStr());
                     variableArea.push(newVar);
                 } else {
-                    Variable newVar;
-                    newVar.setType(VAR_NUM);
-                    newVar.setName(SYSTEMVAR + std::to_string(systemVarCount++));
-                    newVar.setDataNum(var->getDataNum());
-                    variableArea.push(newVar);
+                    if(ALU_FLAG == ALU_STATELESS) {
+                        Variable newVar;
+                        newVar.setType(VAR_NUM);
+                        newVar.setName(SYSTEMVAR + std::to_string(systemVarCount++));
+                        newVar.setDataNum(var->getDataNum());
+                        variableArea.push(newVar);
+                    } else {
+                        Variable newVar;
+                        newVar.setType(VAR_NUM);
+                        newVar.setName(SYSTEMVAR + std::to_string(systemVarCount++));
+
+                        Variable lastVar = variableArea.pop();
+                        if(lastVar.getType() == VAR_STR) throw SyntaxError("Strings and numbers cannot be operated on.");
+                        int aluRetn = handleNumberCalculation(lastVar.getDataNum(), var->getDataNum());
+
+                        newVar.setDataNum(aluRetn);
+                        variableArea.push(newVar);
+                        
+                        ALU_FLAG = ALU_STATELESS;
+                    }
                 }
                 break;
             }
@@ -259,11 +285,26 @@ public:
         }
 
         case TOK_NUMBER: {
-            Variable newVar;
-            newVar.setType(VAR_NUM);
-            newVar.setName(SYSTEMVAR + std::to_string(systemVarCount++));
-            newVar.setDataNum(std::stoi(token->getValue()));
-            variableArea.push(newVar);
+            if(ALU_FLAG == ALU_STATELESS) {
+                Variable newVar;
+                newVar.setType(VAR_NUM);
+                newVar.setName(SYSTEMVAR + std::to_string(systemVarCount++));
+                newVar.setDataNum(std::stoi(token->getValue()));
+                variableArea.push(newVar);
+            } else {
+                Variable newVar;
+                newVar.setType(VAR_NUM);
+                newVar.setName(SYSTEMVAR + std::to_string(systemVarCount++));
+
+                Variable var = variableArea.pop();
+                if(var.getType() == VAR_STR) throw SyntaxError("Strings and numbers cannot be operated on.");
+                int aluRetn = handleNumberCalculation(var.getDataNum(), std::stoi(token->getValue()));
+
+                newVar.setDataNum(aluRetn);
+                variableArea.push(newVar);
+                
+                ALU_FLAG = ALU_STATELESS;
+            }
             break;
         }
 

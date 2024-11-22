@@ -59,6 +59,8 @@ std::shared_ptr<Token> getToken(std::stringstream& ss) {
         token->setType(TOK_TYPE_STR);
     } else if (word == "bool") {
         token->setType(TOK_TYPE_BOOL);
+    } else if (word == "save") {
+        token->setType(TOK_SAVE);
     }
     
     else if (word == "out") {
