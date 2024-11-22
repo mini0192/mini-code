@@ -3,10 +3,11 @@
 
 #include "../header/token.h"
 #include "variableAreaImpl.h"
-#include "dataAreaImpl.h"
 #include "functionAreaImpl.h"
 
 #pragma once
+
+#define SYSTEMVAR "SYSTEMVAR_"
 
 enum ALUType {
     ALU_STATELESS,
@@ -30,9 +31,9 @@ private:
     int ALU_REG;
     ALUType ALU_FLAG;
 
-    VariableArea variableArea;
-    DataArea dataArea;
+    int systemVarCount;
 
+    VariableArea variableArea;
     FunctionArea functionArea;
     FunctionData functionData;
 
@@ -52,12 +53,18 @@ private:
         return true;
     }
 
+    bool checkSystemVar(const std::string& str) {
+        const std::string prefix = SYSTEMVAR;
+        return str.find(prefix) == 0;
+    }
+
 public:
     Execute() :
         VAR_NAME_FLAG(false),
         STRDATA_FLAG(false),
         NUM_FLAG(false),
-        ALU_FLAG(ALU_STATELESS)
+        ALU_FLAG(ALU_STATELESS),
+        systemVarCount(0)
     {}
 
     int execute(std::shared_ptr<Token> token) {
@@ -89,6 +96,11 @@ public:
             for(int i = 0; i < nextFunction->getLineSize(); i++) {
                 execute(nextFunction->getLine(i));
             }
+            break;
+        }
+
+        case TOK_PARAMETER: {
+            break;
         }
 
         case TOK_ADD: {
@@ -109,30 +121,32 @@ public:
         }
 
         case TOK_TRUE: {
-            if(NUM_FLAG) throw ProgramError("NUM_REG is already in use.");
-            NUM_REG = 1;
-            NUM_FLAG = true;
+            Variable newVar;
+            newVar.setType(VAR_BOOL);
+            newVar.setName(SYSTEMVAR + std::to_string(systemVarCount++));
+            newVar.setDataNum(true);
+            variableArea.push(newVar);
             break;
         }
         case TOK_FALSE: {
-            if(NUM_FLAG) throw ProgramError("NUM_REG is already in use.");
-            NUM_REG = 0;
-            NUM_FLAG = true;
+            Variable newVar;
+            newVar.setType(VAR_BOOL);
+            newVar.setName(SYSTEMVAR + std::to_string(systemVarCount++));
+            newVar.setDataNum(false);
+            variableArea.push(newVar);
             break;
         }
 
         case TOK_OUT: {
-            if(STRDATA_FLAG) {
-                std::cout << STRDATA_REG;
-                STRDATA_FLAG = false;
-                break;
-            }
-            if(NUM_FLAG) {
-                std::cout << NUM_REG;
-                NUM_FLAG = false;
-                break;
-            }
-            throw SyntaxError("No element to run \"out\".");
+            Variable var = variableArea.pop();
+            if(!checkSystemVar(var.getName())) throw SyntaxError("No element to run \"out\".");
+            if(var.getType() == VAR_STR) std::cout << var.getDataStr();
+            if(var.getType() == VAR_NUM) std::cout << var.getDataNum();
+            break;
+        }
+        case TOK_NEXT: {
+            std::cout << std::endl;
+            break;
         }
         case TOK_IN: {
             std::string data;
@@ -162,95 +176,94 @@ public:
 
         case TOK_TYPE_BOOL: {
             if(!VAR_NAME_FLAG) throw SyntaxError("Variable name is missing.");
-            if(!NUM_FLAG) throw SyntaxError("Variable not initialized.");
+            Variable var = variableArea.pop();
+            if(!checkSystemVar(var.getName())) throw SyntaxError("The variable is not initialized. [It is not a system variable (" + var.getName() + ")]");
+            if(var.getType() != VAR_NUM && var.getType() != VAR_BOOL) throw SyntaxError("Types do not match. Note: The variable type is not \"num\" or \"bool\"");
 
             Variable newVar;
             newVar.setType(VAR_BOOL);
             newVar.setName(VAR_NAME_REG);
-            VAR_NAME_FLAG = false;
 
-            if(NUM_FLAG) {
-                if(NUM_REG != 0 && NUM_REG != 1) throw SyntaxError("The bool data type can only store 0 or 1.");
-                int pointer = dataArea.pushNumber(NUM_REG);
-                newVar.setPointer(pointer);
-                NUM_FLAG = false;
-            }
+            int data = var.getDataNum();
+            if(data != 0 && data != 1) throw SyntaxError("The bool data type can only store 0 or 1.");
 
+            newVar.setDataNum(data);
             variableArea.push(newVar);
+
+            VAR_NAME_FLAG = false;
             break;
         }
         case TOK_TYPE_NUM: {
             if(!VAR_NAME_FLAG) throw SyntaxError("Variable name is missing.");
-            if(!NUM_FLAG) throw SyntaxError("Variable not initialized.");
+            Variable var = variableArea.pop();
+            std::cout << var.getName() << std::endl;
+            if(!checkSystemVar(var.getName())) throw SyntaxError("The variable is not initialized. [It is not a system variable (" + var.getName() + ")]");
+            if(var.getType() != VAR_NUM && var.getType() != VAR_BOOL) throw SyntaxError("Types do not match. Note: The variable type is not \"num\" or \"bool\"");
 
             Variable newVar;
             newVar.setType(VAR_NUM);
             newVar.setName(VAR_NAME_REG);
-            VAR_NAME_FLAG = false;
 
-            int pointer = dataArea.pushNumber(NUM_REG);
-            newVar.setPointer(pointer);
-            NUM_FLAG = false;
-
+            newVar.setDataNum(var.getDataNum());
             variableArea.push(newVar);
+
+            VAR_NAME_FLAG = false;
             break;
         }
         case TOK_TYPE_STR: {
             if(!VAR_NAME_FLAG) throw SyntaxError("Variable name is missing.");
-            if(!STRDATA_FLAG) throw SyntaxError("Variable not initialized.");
+            Variable var = variableArea.pop();
+            if(!checkSystemVar(var.getName())) throw SyntaxError("The variable is not initialized. [It is not a system variable (" + var.getName() + ")]");
+            if(var.getType() != VAR_STR) throw SyntaxError("Types do not match. Note: The variable type is not \"str\"");
 
             Variable newVar;
             newVar.setType(VAR_STR);
             newVar.setName(VAR_NAME_REG);
-            VAR_NAME_FLAG = false;
-
-            int pointer = dataArea.pushStr(STRDATA_REG);
-            newVar.setPointer(pointer);
-            STRDATA_FLAG = false;
-
+            newVar.setDataStr(var.getDataStr());
             variableArea.push(newVar);
+
+            VAR_NAME_FLAG = false;
             break;
         }
 
         case TOK_STR: {
             Variable* var = variableArea.findByName(token->getValue());
             if(var) {
-                int pointer = var->getPointer();
                 if(var->getType() == VAR_STR) {
-                    if(STRDATA_FLAG) throw ProgramError("STRDATA_REG is already in use.");
-                    STRDATA_REG = dataArea.getStr(pointer);
-                    STRDATA_FLAG = true;
+                    Variable newVar;
+                    newVar.setType(VAR_STR);
+                    newVar.setName(SYSTEMVAR + std::to_string(systemVarCount++));
+                    newVar.setDataStr(var->getDataStr());
+                    variableArea.push(newVar);
                 } else {
-                    if(!NUM_FLAG) {
-                        NUM_REG = dataArea.getNumber(pointer);
-                        NUM_FLAG = true;
-                    } else {
-                        NUM_REG = handleCalculation(dataArea.getNumber(pointer), NUM_REG);
-                    }
+                    Variable newVar;
+                    newVar.setType(VAR_NUM);
+                    newVar.setName(SYSTEMVAR + std::to_string(systemVarCount++));
+                    newVar.setDataNum(var->getDataNum());
+                    variableArea.push(newVar);
                 }
                 break;
             }
-
             VAR_NAME_REG = token->getValue();
             VAR_NAME_FLAG = true;
             break;
         }
 
         case TOK_STRDATA: {
-            if(STRDATA_FLAG) throw ProgramError("STRDATA_REG is already in use.");
-
-            STRDATA_REG = token->getValue();
-            STRDATA_FLAG = true;
+            Variable newVar;
+            newVar.setType(VAR_STR);
+            newVar.setName(SYSTEMVAR + std::to_string(systemVarCount++));
+            newVar.setDataStr(token->getValue());
+            variableArea.push(newVar);
             break;
         }
 
         case TOK_NUMBER: {
-            if(!NUM_FLAG) {
-                NUM_REG = std::stoi(token->getValue());
-                NUM_FLAG = true;
-            } else {
-                NUM_REG = handleCalculation(std::stoi(token->getValue()), NUM_REG);
-            }
+            Variable newVar;
+            newVar.setType(VAR_NUM);
+            newVar.setName(SYSTEMVAR + std::to_string(systemVarCount++));
+            newVar.setDataNum(std::stoi(token->getValue()));
+            variableArea.push(newVar);
             break;
         }
 

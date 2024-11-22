@@ -11,6 +11,7 @@ enum TokenType {
 
     TOK_VAR,
     TOK_OUT,
+    TOK_NEXT,
     TOK_IN,
     TOK_IF,
 
@@ -28,8 +29,10 @@ enum TokenType {
     TOK_MUL,
 
     TOK_FUNCTION,
+    TOK_PARAMETER,
     TOK_DONE,
     TOK_CALL,
+    TOK_GIVE,
 
     TOK_EOF,
 };
@@ -47,6 +50,8 @@ std::string tokenTypeToString(TokenType type) {
         return "TOK_VAR";
     case TOK_OUT:
         return "TOK_OUT";
+    case TOK_NEXT:
+        return "TOK_NEXT";
     case TOK_IN:
         return "TOK_IN";
     case TOK_IF:
@@ -77,10 +82,14 @@ std::string tokenTypeToString(TokenType type) {
 
     case TOK_FUNCTION:
         return "TOK_FUNCTION";
+    case TOK_PARAMETER:
+        return "TOK_PARAMETER";
     case TOK_DONE:
         return "TOK_DONE";
     case TOK_CALL:
         return "TOK_CALL";
+    case TOK_GIVE:
+        return "TOK_GIVE";
 
     case TOK_EOF:
         return "TOK_EOF";

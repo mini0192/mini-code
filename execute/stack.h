@@ -34,7 +34,11 @@ public:
         elements[topIndex++] = data;
     }
 
-    T pop() {
+    T findByIndex(int index) {
+        return elements[index];
+    }
+
+    virtual T pop() {
         return elements[--topIndex];
     }
 

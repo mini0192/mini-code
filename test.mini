@@ -1,0 +1,6 @@
+function test
+    parameter num num13
+    parameter num num2
+done
+
+call test 3 5

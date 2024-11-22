@@ -37,10 +37,14 @@ std::shared_ptr<Token> getToken(std::stringstream& ss) {
 
     else if (word == "function") {
         token->setType(TOK_FUNCTION);
+    } else if (word == "parameter") {
+        token->setType(TOK_PARAMETER);
     } else if (word == "done") {
         token->setType(TOK_DONE);
     } else if (word == "call") {
         token->setType(TOK_CALL);
+    } else if (word == "give") {
+        token->setType(TOK_GIVE);
     }
     
     else if (word == "true") {
@@ -59,6 +63,8 @@ std::shared_ptr<Token> getToken(std::stringstream& ss) {
     
     else if (word == "out") {
         token->setType(TOK_OUT);
+    } else if(word == "next") {
+        token->setType(TOK_NEXT);
     } else if (word == "in") {
         token->setType(TOK_IN);
     } else if (word == "if") {

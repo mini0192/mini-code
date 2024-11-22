@@ -13,6 +13,7 @@ class Token;  // 전방 선언
 
 class FunctionData {
 private:
+    VariableArea functionParameterArea;
     std::string name;
     std::vector<std::shared_ptr<Token>> lines;
 
