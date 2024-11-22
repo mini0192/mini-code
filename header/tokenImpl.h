@@ -39,6 +39,8 @@ std::shared_ptr<Token> getToken(std::stringstream& ss) {
         token->setType(TOK_FUNCTION);
     } else if (word == "parameter") {
         token->setType(TOK_PARAMETER);
+    } else if (word == "stop") {
+        token->setType(TOK_STOP);
     } else if (word == "done") {
         token->setType(TOK_DONE);
     } else if (word == "call") {
@@ -109,8 +111,8 @@ std::shared_ptr<Token> getNextToken(std::string src) {
     std::string part;
 
     std::shared_ptr<Token> token = getToken(ss);
-    tokenPrint(token);
-    std::cout << std::endl;
+    // tokenPrint(token);
+    // std::cout << std::endl;
 
     return token;
 }

@@ -1,5 +1,4 @@
 #include <iostream>
-#include "stack.h"
 #include "dataAreaImpl.h"
 
 #pragma once
@@ -10,6 +9,8 @@ enum VariableType {
     VAR_NUM,
     VAR_STR,
     VAR_BOOL,
+
+    FUNCTION_DATA,
     VAR_NOT,
 };
 
@@ -21,7 +22,6 @@ private:
 
 public:
     Variable() {}
-
     Variable(std::string name, int pointer, VariableType type) :
         name(name),
         pointer(pointer),
@@ -40,17 +40,26 @@ public:
         return dataArea.getStr(pointer);
     }
 
-    int getDataNum() {
-        return dataArea.getNumber(pointer);
-    }
-
     void setDataStr(std::string data) {
         if(VAR_TYPE != VAR_STR) throw SyntaxError("Types do not match. Note: The variable type is not \"str\"");
         pointer = dataArea.pushStr(data);
     }
 
+    int getDataNum() {
+        return dataArea.getNumber(pointer);
+    }
+
     void setDataNum(int data) {
         if(VAR_TYPE != VAR_NUM && VAR_TYPE != VAR_BOOL) throw SyntaxError("Types do not match. Note: The variable type is not \"num\" or \"bool\"");
+        pointer = dataArea.pushNumber(data);
+    }
+
+    int getDataFunc() {
+        return dataArea.getNumber(pointer);
+    }
+
+    void setDataFunc(int data) {
+        if(VAR_TYPE != FUNCTION_DATA) throw SyntaxError("Types do not match. Note: The variable type is not \"num\" or \"bool\"");
         pointer = dataArea.pushNumber(data);
     }
 
@@ -63,25 +72,76 @@ public:
     }
 };
 
-class VariableArea : public Stack<Variable> {
+class VariableArea {
+private:
+    int maxSize;
+    Variable* elements;
+    int topIndex;
+    int bottomIndex;
+
+    void resize() {
+        maxSize *= 2;
+        Variable* newElements = new Variable[maxSize];
+        for (int i = 0; i <= topIndex; ++i) {
+            newElements[i] = elements[i];
+        }
+        delete[] elements;
+        elements = newElements;
+    }
+
 public:
-    using Stack::Stack;
-    using Stack::push;
-    using Stack::pop;
-    using Stack::isEmpty;
-    using Stack::size;
+    VariableArea() :
+        maxSize(10),
+        topIndex(0),
+        bottomIndex(0),
+        elements(new Variable[maxSize])
+    {}
 
-    VariableArea() : Stack() {}
-    ~VariableArea() {}
+    ~VariableArea() {
+        delete[] elements;
+    }
 
-    Variable pop() override {
+    void callFunction() {
+        Variable funcData;
+        funcData.setType(FUNCTION_DATA);
+        funcData.setDataFunc(bottomIndex);
+        push(funcData);
+
+        bottomIndex = topIndex;
+    }
+
+    void doneFunction() {
+        topIndex = bottomIndex - 1;
+        Variable funcData = findByIndex(bottomIndex - 1);
+        bottomIndex = funcData.getDataFunc();
+    }
+
+    void push(Variable data) {
+        if (findByName(data.getName())) throw SyntaxError("Duplicate variable name.");
+        if (topIndex >= maxSize) resize();
+        elements[topIndex++] = data;
+    }
+
+    Variable findByIndex(int index) {
+        return elements[index];
+    }
+
+    Variable pop() {
         return elements[--topIndex];
     }
 
-    Variable* findByName(std::string name) override {
+    Variable* findByName(std::string name) {
         for (int i = 0; i < topIndex; i++) {
             if (this->elements[i].getName() == name) return &this->elements[i];
         }
         return nullptr;
+    }
+
+    bool isEmpty() {
+        return topIndex <= 0;
+    }
+
+    int size() {
+        return topIndex;
     }
 };

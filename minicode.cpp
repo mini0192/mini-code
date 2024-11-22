@@ -15,7 +15,7 @@ int main(int argc, char *argv[]) {
         std::cout << "File Error: File information is missing." << std::endl;
     }
 
-    const char *filename = "test.mini";//argv[1];
+    const char *filename = "test1.mini";//argv[1];
     const char *ext = strrchr(filename, '.');
     if (ext == NULL || strcmp(ext, ".mini") != 0) {
         std::cout << "File Error: The file extension is incorrect." << std::endl;
@@ -34,7 +34,7 @@ int main(int argc, char *argv[]) {
         while (std::getline(file, line)) {
             if(line == "") continue;
             lineNumber++;
-            std::cout << "running[" << lineNumber << "]" << std::endl;
+            // std::cout << "running[" << lineNumber << "]" << std::endl;
             std::shared_ptr<Token> token = getNextToken(line);
             run.execute(token);
         }

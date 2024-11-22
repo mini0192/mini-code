@@ -31,6 +31,7 @@ enum TokenType {
 
     TOK_FUNCTION,
     TOK_PARAMETER,
+    TOK_STOP,
     TOK_DONE,
     TOK_CALL,
     TOK_GIVE,
@@ -87,6 +88,8 @@ std::string tokenTypeToString(TokenType type) {
         return "TOK_FUNCTION";
     case TOK_PARAMETER:
         return "TOK_PARAMETER";
+    case TOK_STOP:
+        return "TOK_STOP";
     case TOK_DONE:
         return "TOK_DONE";
     case TOK_CALL:

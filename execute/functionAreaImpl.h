@@ -5,25 +5,15 @@
 
 #pragma once
 
-#include <iostream>
-#include <vector>
-#include <memory>
-
 class Token;  // 전방 선언
 
 class FunctionData {
 private:
-    VariableArea functionParameterArea;
     std::string name;
     std::vector<std::shared_ptr<Token>> lines;
 
 public:
     FunctionData() : name("") {}
-
-    void clear() {
-        lines.clear();
-        name.clear();
-    }
 
     void pushLine(std::shared_ptr<Token> line) {
         lines.push_back(line);
@@ -54,21 +44,58 @@ public:
 };
 
 
-class FunctionArea : public Stack<FunctionData> {
+class FunctionArea {
+protected:
+    int maxSize;
+    FunctionData* elements;
+    int topIndex;
+
+    void resize() {
+        maxSize *= 2;
+        FunctionData* newElements = new FunctionData[maxSize];
+        for (int i = 0; i <= topIndex; ++i) {
+            newElements[i] = elements[i];
+        }
+        delete[] elements;
+        elements = newElements;
+    }
+
 public:
-    using Stack::Stack;
-    using Stack::push;
-    using Stack::pop;
-    using Stack::isEmpty;
-    using Stack::size;
+    FunctionArea() :
+        maxSize(10),
+        topIndex(0),
+        elements(new FunctionData[maxSize])
+    {}
 
-    FunctionArea() : Stack() {}
-    ~FunctionArea() {}
+    ~FunctionArea() {
+        delete[] elements;
+    }
 
-    FunctionData* findByName(std::string name) override {
+    void push(FunctionData data) {
+        if (topIndex >= maxSize) resize();
+        elements[topIndex++] = data;
+    }
+
+    FunctionData findByIndex(int index) {
+        return elements[index];
+    }
+
+    FunctionData pop() {
+        return elements[--topIndex];
+    }
+
+    FunctionData* findByName(std::string name) {
         for (int i = 0; i < topIndex; i++) {
             if (this->elements[i].getName() == name) return &this->elements[i];
         }
         return nullptr;
+    }
+
+    bool isEmpty() {
+        return topIndex <= 0;
+    }
+
+    int size() {
+        return topIndex;
     }
 };

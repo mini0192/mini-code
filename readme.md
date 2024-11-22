@@ -8,7 +8,7 @@ Mini는 간단하고 직관적인 프로그래밍 언어입니다.
 
 Mini는 배우기 쉬운 문법과 구문을 제공하여, 프로그래밍을 처음 접하는 사람들에게 적합한 선택이 될 수 있습니다.
 
-## 실행 방법(윈도우 기준)
+# 실행 방법(윈도우 기준)
 1. minicode를 gcc로 컴파일 해줍니다
 ```
 gcc minicode.c
@@ -18,50 +18,75 @@ gcc minicode.c
 ./a.exe test.mini
 ```
 
-## 문법
+# 문법
 
-### 변수
-#### 변수 선언
+## 변수 선언 및 자료형
+***자료형***
+1. ***num:*** 숫자 데이터를 저장합니다.
+2. ***str:*** 문자열 데이터를 저장합니다.
+3. ***bool:*** 논리값을 저장하바니다(true 혹은 false).
+
+## 기본 사용법
 ```
 num data1 30
 str data2 "it is str"
 bool data3 true
 ```
-변수의 자료형은 num, str, bool이 있습니다.
+## 동작 설명
+### 변수 선언과 임시 저장
+- ***num data1 30:*** data1 이라는 이름의 숫자 변수에 숫자 30을 할당하고, 이를 변수 영역에 저장합니다. 
+- ***str data2 "it is str":*** data2 라는 이름의 문자열 변수에 문자열 "it is str"을 할당하고, 이를 변수 영역에 저장합니다.
+- **bool data3 true:*** data3 이라는 논리 변수에 true를 할당하고, 이를 변수 영역에 저장합니다.
 
-> num: 숫자 저장,
 
-> str: 문자열 저장,
 
-> bool: true, false를 저장 
-#### 변수 수정
+## 출력 명령어(out)
+출력 명령어 "out"은 출력하는 역할을 합니다. 이 명령어는 택스트를 사용자에게 보여주어 정보를 전달하거나, 사용자와 상호작용하는 데 기분적인 도구로 사용됩니다.
+
+### 기본 사용법
 ```
-num data 30
-data 20
+out "Hello, World!"
 ```
-#### 변수에 입력
+위의 명령어는 문자열 "Hello World!"를 화면에 출력합니다.
+
+### 고급 사용법
 ```
-var data in
+str greeting "Hello "
+str name "Mini"
+str punctuation "!"
+
+out greeting
+out name
+out punctuation
+```
+이 예제에서는 여러개의 문자열 변수를 출력합니다. 각 변수는 따로 출력되며 출력된 결과는 Hello Mini!가 됩니다.
+
+### 개행(next)
+next 명령어는 출력을 할 때 줄을 바꾸는, 즉 개행을 수행하는 역할을 합니다. 이를 통해 새로운 줄에서 출력을 시작할 수 있습니다.
+
+### 기본 사용법
+```
+out "Hello, World!"
+next
+out "This is a new line."
+```
+위의 예제에서는 "Hello, World!"를 출력한 후 줄을 바꿔 "This is a new line."을 출력합니다.
+
+출력 결과는 다음과 같습니다
+```
+Hello, World!
+This is a new line.
 ```
 
-### 출력
-#### 문자열 출력
+### 고급 예제
 ```
-out "it is print"
+next out "Hello, World!"
+next out "This is a new line."
 ```
-> 출력 값: it is print
+위의 예제에서는 각 문장이 출력된 후 줄을 바꿉니다.
 
-#### 변수 출력
+출력 결과는 다음과 같습니다.
 ```
-str data "it is just test"
-out data
+Hello, World!
+This is a new line.
 ```
-> 출력 값: it is just test
-
-### 연산
-```
-out 20 + 30
-```
-> 출력 값: 50
-
-연산은 기본적으로 한번에 하나를 연산하는 것을 권장합니다.

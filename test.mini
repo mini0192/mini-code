@@ -1,13 +1,48 @@
-function sub
-    parameter num sub1
-    parameter num sub2
-    save
-done sub1 - sub2
-
-next out "Test"
-
 function add
-    parameter num add1
-    parameter num add2
-    save
-done add1 + add2
+    num data1
+    num data2
+    parameter
+
+    stop data1 + data2
+done
+
+function sub
+    num data1
+    num data2
+    parameter
+
+    stop data1 - data2
+done
+
+function div
+    num data1
+    num data2
+    parameter
+
+    stop data1 / data2
+done
+
+function mul
+    num data1
+    num data2
+    parameter
+
+    stop data1 * data2
+done
+
+function printNum
+    num data
+    parameter
+
+    next out data
+done
+
+function printStr
+    str data
+    parameter
+
+    next out data
+done
+
+save num rtnData call mul 5 5
+call printNum rtnData
