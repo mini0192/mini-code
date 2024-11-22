@@ -33,6 +33,8 @@ std::shared_ptr<Token> getToken(std::stringstream& ss) {
         token->setType(TOK_DIV);
     } else if (word == "*") {
         token->setType(TOK_MUL);
+    } else if (word == "==") {
+        token->setType(TOK_EQUAL);
     }
 
     else if (word == "function") {

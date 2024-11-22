@@ -128,3 +128,77 @@ Enter your age: 20
 Hello mini!
 You are 20, years old.
 ```
+
+## 조건문 (if)
+"if" 명령어는 조건에 따라 특정 명령어는 실행하거나 실행하지 않게 하는 제어문 입니다. 조건이 참(true)일 때만 명령어가 실행됩니다. 조건이 거짓(false)일 경우 명령어는 실행되지 않습니다.
+
+### 기본 예제
+```
+next out "Hello if!" if false
+```
+위의 예제에서는 if false가 붙어 있으므로 "Hello if!" 라는 문자열은 출력되지 않습니다.
+
+```
+next out "Hello if!" if true
+```
+위의 예제에서는 if true가 붙어 있으므로 "test" 라는 문자열은 출력됩니다.
+
+## 실행 조건의 세부 사항
+"if" 문의 조건은 특히 이 언어에서는 조건이 0보다 클 때만 명령어가 실행된다는 점을 이해하는 것이 중요합니다. 조건이 0(false)이거나 0보다 작을 경우, 명령어는 실행되지 않습니다. 반대로 1(true)이거나 1보다 클 경우 명령어는 실행됩니다. 이를 통해 if 문이 어떤 상황에서 명령어를 실행하는지 명확하게 알 수 있습니다.
+
+## 심화 예제
+### 예제 1: 조건이 양수일 때
+```
+num data1 10
+num data2 5
+next out "data1 is greater than data2" if data1 - data2
+```
+위의 예제에서는 data1이 data2 보다 크므로 "data1 is greater than data2"가 출력됩니다.
+이는 data1 - data2가 양수(0보다 큼)이기 때문입니다.
+
+### 예제 2: 조건이 음수일 때
+```
+num data1 3
+num data2 7
+next out "data1 is less than data2" if data1 - data2
+```
+위의 예제에서는 data1이 data2 보다 작으므로, 조건이 거짓이 되어 "data1 is less than data2"가 출력되지 않습니다.
+
+### 예제 3: 같은 값을 비교할 때
+```
+num data1 10
+num data2 10
+next out "data1 is equal to data2" if data1 == data2
+```
+위의 예제에서는 data1과 data2가 같으므로 "data1 is equal to data2"가 출력됩니다.
+이는 value1 == value2는 1(true)이기 때문입니다.
+
+## 실습 예제
+```
+out "Enter a number: "
+num input in
+
+next out "The number is greater than 10." if input - 10
+next out "The number is 10." if input == 10
+next out "The number is less than 10." if 10 - input
+```
+이 프로그램은 사용자가 입력한 숫자에 따라 적절한 메시지를 출력합니다.
+
+### 예시 출력 결과
+사용자가 15를 입력했을 때
+```
+Enter a number: 15
+The number is greater than 10.
+```
+
+사용자가 10을 입력했을 때
+```
+Enter a number: 10
+The number is 10.
+```
+
+사용자가 5를 입력했을 때
+```
+Enter a number: 5
+The number is less than 10.
+```

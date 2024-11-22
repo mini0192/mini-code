@@ -28,6 +28,7 @@ enum TokenType {
     TOK_SUB,
     TOK_DIV,
     TOK_MUL,
+    TOK_EQUAL,
 
     TOK_FUNCTION,
     TOK_PARAMETER,
@@ -83,6 +84,8 @@ std::string tokenTypeToString(TokenType type) {
         return "TOK_DIV";
     case TOK_MUL:
         return "TOK_MUL";
+    case TOK_EQUAL:
+        return "TOK_EQUAL";
 
     case TOK_FUNCTION:
         return "TOK_FUNCTION";

@@ -1,15 +1,6 @@
-out "Enter your name: "
-str name in
+out "Enter a number: "
+num input in
 
-out "Enter your age: "
-num age in
-
-
-out "Hello "
-out name
-out "!"
-next 
-
-out "You are "
-out age
-out ", years old."
+next out "The number is greater than 10." if input - 10
+next out "The number is 10." if input == 10
+next out "The number is less than 10." if 10 - input

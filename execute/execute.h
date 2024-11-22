@@ -16,6 +16,7 @@ enum ALUType {
     ALU_SUB,
     ALU_DIV,
     ALU_MUL,
+    ALU_EQUAL,
 };
 
 class Execute {
@@ -40,10 +41,11 @@ private:
     FunctionData functionData;
 
     int handleNumberCalculation(int num1, int num2) {
-        if(ALU_FLAG == ALU_ADD) return num1 + num2;
-        if(ALU_FLAG == ALU_SUB) return num1 - num2;
-        if(ALU_FLAG == ALU_DIV) return num1 / num2;
-        if(ALU_FLAG == ALU_MUL) return num1 * num2;
+        if(ALU_FLAG == ALU_ADD) return num2 + num1;
+        if(ALU_FLAG == ALU_SUB) return num2 - num1;
+        if(ALU_FLAG == ALU_DIV) return num2 / num1;
+        if(ALU_FLAG == ALU_MUL) return num2 * num1;
+        if(ALU_FLAG == ALU_EQUAL) return num2 == num1;
         ALU_FLAG = ALU_STATELESS;
     }
 
@@ -130,6 +132,10 @@ public:
             ALU_FLAG = ALU_MUL;
             break;
         }
+        case TOK_EQUAL: {
+            ALU_FLAG = ALU_EQUAL;
+            break;
+        }
 
         case TOK_TRUE: {
             Variable newVar;
@@ -177,9 +183,9 @@ public:
         }
         case TOK_IF: {
             Variable var = temporaryArea.pop();
-            if(!checkSystemVar(var.getName())) throw SyntaxError("No element to run \"out\".");
+            if(!checkSystemVar(var.getName())) throw SyntaxError("No element to run \"if\".");
             if(var.getType() == VAR_STR) throw SyntaxError("The \"true\" and \"false\" values ​​of \"str \"are unknown.");
-            if(NUM_REG != 1) return -1;
+            if(var.getDataNum() < 1) return -1;
             break;
         }
 
