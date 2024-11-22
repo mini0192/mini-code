@@ -15,8 +15,6 @@ function sub
 done
 
 function div
-    num data1
-    num data2
     parameter
 
     stop data1 / data2

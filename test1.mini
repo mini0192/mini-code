@@ -1,6 +1,8 @@
-out "Enter a number: "
-num input in
+function print
+    num data
+    parameter
+    stop 0 if data == 10
+    next out "Good"
+done
 
-next out "The number is greater than 10." if input - 10
-next out "The number is 10." if input == 10
-next out "The number is less than 10." if 10 - input
+call print in

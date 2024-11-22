@@ -18,6 +18,8 @@ gcc minicode.c
 ./a.exe test.mini
 ```
 
+
+
 # 문법
 
 ## 변수 선언 및 자료형
@@ -90,6 +92,8 @@ Hello, World!
 This is a new line.
 ```
 
+
+
 ## 입력(in)
 "in" 명령어는 사용자로부터 데이터를 입력받아 변수에 저장하는 기능을 합니다. 이를 통해 프로그램이 사용자와 상호작용할 수 있습니다.
 
@@ -129,6 +133,8 @@ Hello mini!
 You are 20, years old.
 ```
 
+
+
 ## 조건문 (if)
 "if" 명령어는 조건에 따라 특정 명령어는 실행하거나 실행하지 않게 하는 제어문 입니다. 조건이 참(true)일 때만 명령어가 실행됩니다. 조건이 거짓(false)일 경우 명령어는 실행되지 않습니다.
 
@@ -143,10 +149,10 @@ next out "Hello if!" if true
 ```
 위의 예제에서는 if true가 붙어 있으므로 "test" 라는 문자열은 출력됩니다.
 
-## 실행 조건의 세부 사항
+### 실행 조건의 세부 사항
 "if" 문의 조건은 특히 이 언어에서는 조건이 0보다 클 때만 명령어가 실행된다는 점을 이해하는 것이 중요합니다. 조건이 0(false)이거나 0보다 작을 경우, 명령어는 실행되지 않습니다. 반대로 1(true)이거나 1보다 클 경우 명령어는 실행됩니다. 이를 통해 if 문이 어떤 상황에서 명령어를 실행하는지 명확하게 알 수 있습니다.
 
-## 심화 예제
+### 심화 예제
 ### 예제 1: 조건이 양수일 때
 ```
 num data1 10
@@ -173,7 +179,7 @@ next out "data1 is equal to data2" if data1 == data2
 위의 예제에서는 data1과 data2가 같으므로 "data1 is equal to data2"가 출력됩니다.
 이는 value1 == value2는 1(true)이기 때문입니다.
 
-## 실습 예제
+### 실습 예제
 ```
 out "Enter a number: "
 num input in
@@ -202,3 +208,79 @@ The number is 10.
 Enter a number: 5
 The number is less than 10.
 ```
+
+
+## 함수(function)
+함수는 특정 작업을 수행하는 명령어 블록입니다. 이 언어에서 함수는 function 키워드로 시작하며 parameter 키워드로 매개변수 구역의 끝을 나타냅니다. 함수는 done 키워드를 통해 종료됩니다. stop 명령어는 중간에 함수 실행을 멈추고 값을 반환할 때 사용되지만, 필수는 아닙니다.
+
+### 함수 정의
+```
+function add
+    num data1
+    num data2
+    parameter
+
+    stop data1 + data2
+done
+```
+함수는 두개의 숫자 data1과 data2를 매개변수로 받아, 이들의 합을 반환합니다.
+
+### 함수 호출 및 출력
+```
+next out call add 3 5
+```
+이 명령어는 add 함수를 호출하고, 3과 5를 매개변수로 전달하여 결과를 출력합니다. 최종적으로 8이 출력됩니다.
+
+### 함수의 구조 설명
+1. 함수 시작(function add)
+- function 키워드로 함수 정의가 시작됩니다.
+- add 는 함수의 이름입니다.
+
+2. 매개변수 정의
+- **num data1:** 첫 번째 매개변수로 숫자형 data1을 선언합니다.
+- **num data2:** 두 번째 매개변수로 숫자형 data2를 선언합니다.
+- **parameter:** 매개변수 구역의 끝을 나타냅니다 매개변수가 없어도 반드시 사용해야 합니다.
+
+3. 함수 본문
+- **stop daata1 + data2:** 함수의 실행을 중지하고, data1과 data2의 합을 반환합니다.
+
+4. 함수 끝(done)
+- 함수 정의가 끝났음을 나타냅니다. stop 명령어 없이도 done을 만나면 함수가 종료 됩니다.
+
+### 매개변수가 없는 함수
+```
+function greet
+    parameter
+    next out "Hello, World!"
+done
+
+call greet
+```
+이 예제는 greet 라는 이름의 함수를 정의하며, 매개변수가 없고 "Hello, World!"를 출력합니다.
+
+### 실습 예제
+```
+function print
+    num data
+    parameter
+    stop 0 if data == 10
+    next out "Good"
+done
+
+call print in
+```
+이 프로그램은 사용자가 입력한 숫자에 따라 조건에 맞춰 "Good"을 출력합니다. 함수는 10이 아닌 숫자가 입력되었을 때만 "Good"을 출력합니다.
+
+### 예시 출력 결과
+사용자가 10을 입력했을 때
+```
+10
+```
+이 경우 아무것도 출력되지 않습니다.
+
+사용자가 5를 입력했을 때
+```
+5
+Good
+```
+이처럼 함수를 통해 다양한 조건을 확인하고, 그에 맞게 출력 결과를 다르게 할 수 있습니다.
