@@ -21,12 +21,11 @@ gcc minicode.c
 # 문법
 
 ## 변수 선언 및 자료형
-***자료형***
-1. ***num:*** 숫자 데이터를 저장합니다.
-2. ***str:*** 문자열 데이터를 저장합니다.
-3. ***bool:*** 논리값을 저장하바니다(true 혹은 false).
+- **num:** 숫자 데이터를 저장합니다.
+- **str:** 문자열 데이터를 저장합니다.
+- **bool:** 논리값을 저장합니다(true 혹은 false).
 
-## 기본 사용법
+## 기본 예제
 ```
 num data1 30
 str data2 "it is str"
@@ -34,22 +33,22 @@ bool data3 true
 ```
 ## 동작 설명
 ### 변수 선언과 임시 저장
-- ***num data1 30:*** data1 이라는 이름의 숫자 변수에 숫자 30을 할당하고, 이를 변수 영역에 저장합니다. 
-- ***str data2 "it is str":*** data2 라는 이름의 문자열 변수에 문자열 "it is str"을 할당하고, 이를 변수 영역에 저장합니다.
-- **bool data3 true:*** data3 이라는 논리 변수에 true를 할당하고, 이를 변수 영역에 저장합니다.
+- **num data1 30:** data1 이라는 이름의 숫자 변수에 숫자 30을 할당하고, 이를 변수 영역에 저장합니다. 
+- **str data2 "it is str":** data2 라는 이름의 문자열 변수에 문자열 "it is str"을 할당하고, 이를 변수 영역에 저장합니다.
+- **bool data3 true:** data3 이라는 논리 변수에 true를 할당하고, 이를 변수 영역에 저장합니다.
 
 
 
-## 출력 명령어(out)
-출력 명령어 "out"은 출력하는 역할을 합니다. 이 명령어는 택스트를 사용자에게 보여주어 정보를 전달하거나, 사용자와 상호작용하는 데 기분적인 도구로 사용됩니다.
+## 출력(out)
+"out" 명령어는 화면에 출력하는 역할을 합니다. 이 명령어는 정보를 사용자에게 전달하거나, 사용자와 상호작용하는 데 사용되는 기본적인 도구입니다.
 
-### 기본 사용법
+### 기본 예제
 ```
 out "Hello, World!"
 ```
-위의 명령어는 문자열 "Hello World!"를 화면에 출력합니다.
+위의 예제에서는 문자열 "Hello World!"를 화면에 출력합니다.
 
-### 고급 사용법
+### 고급 예제
 ```
 str greeting "Hello "
 str name "Mini"
@@ -59,12 +58,12 @@ out greeting
 out name
 out punctuation
 ```
-이 예제에서는 여러개의 문자열 변수를 출력합니다. 각 변수는 따로 출력되며 출력된 결과는 Hello Mini!가 됩니다.
+위의 예제에서는 여러개의 문자열 변수를 출력합니다. 각 변수는 따로 출력되며 출력된 결과는 "Hello Mini!"가 됩니다.
 
 ## 개행(next)
-next 명령어는 출력을 할 때 줄을 바꾸는, 즉 개행을 수행하는 역할을 합니다. 이를 통해 새로운 줄에서 출력을 시작할 수 있습니다.
+"next" 명령어는 출력을 할 때 줄을 바꾸는, 즉 개행을 수행하는 역할을 합니다. 이를 통해 새로운 줄에서 출력을 시작할 수 있습니다.
 
-### 기본 사용법
+### 기본 예제
 ```
 out "Hello, World!"
 next
@@ -89,4 +88,43 @@ next out "This is a new line."
 ```
 Hello, World!
 This is a new line.
+```
+
+## 입력(in)
+"in" 명령어는 사용자로부터 데이터를 입력받아 변수에 저장하는 기능을 합니다. 이를 통해 프로그램이 사용자와 상호작용할 수 있습니다.
+
+### 기본 예제
+```
+num age in
+```
+위의 예제에서는 사용자로부터 숫자를 입력 받아 age 변수에 저장합니다.
+```
+str name in
+```
+위의 예제에서는 사용자로부터 문자열을 입력 받아 name 변수에 저장합니다.
+
+### 고급 예제
+```
+out "Enter your name: "
+str name in
+
+out "Enter your age: "
+num age in
+
+
+out "Hello "
+out name
+out "!"
+next 
+
+out "You are "
+out age
+out ", years old."
+```
+위의 예제에서는 사용자로 부터 이름과 나이를 입력 받고, 입력 받은 이름과 나이로 인사 메시지를 출력합니다.
+```
+Enter your name: mini
+Enter your age: 20
+Hello mini!
+You are 20, years old.
 ```

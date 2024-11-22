@@ -1,3 +1,15 @@
-out "Hello World!"
-next
-out "This is a new line."
+out "Enter your name: "
+str name in
+
+out "Enter your age: "
+num age in
+
+
+out "Hello "
+out name
+out "!"
+next 
+
+out "You are "
+out age
+out ", years old."

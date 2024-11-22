@@ -163,19 +163,16 @@ public:
             std::string data;
             std::cin >> data;
 
+            Variable newVar;
+            newVar.setName(SYSTEMVAR + std::to_string(systemVarCount++));
             if(isNumber(data)) {
-                Variable newVar;
                 newVar.setType(VAR_NUM);
-                newVar.setName(SYSTEMVAR + std::to_string(systemVarCount++));
                 newVar.setDataNum(std::stoi(data));
-                temporaryArea.push(newVar);
             } else {
-                Variable newVar;
                 newVar.setType(VAR_STR);
-                newVar.setName(SYSTEMVAR + std::to_string(systemVarCount++));
-                newVar.setDataStr(token->getValue());
-                temporaryArea.push(newVar);
+                newVar.setDataStr(data);
             }
+            temporaryArea.push(newVar);
             break;
         }
         case TOK_IF: {
@@ -285,26 +282,20 @@ public:
         }
 
         case TOK_NUMBER: {
-            if(ALU_FLAG == ALU_STATELESS) {
-                Variable newVar;
-                newVar.setType(VAR_NUM);
-                newVar.setName(SYSTEMVAR + std::to_string(systemVarCount++));
-                newVar.setDataNum(std::stoi(token->getValue()));
-                temporaryArea.push(newVar);
-            } else {
-                Variable newVar;
-                newVar.setType(VAR_NUM);
-                newVar.setName(SYSTEMVAR + std::to_string(systemVarCount++));
+            Variable newVar;
+            newVar.setType(VAR_NUM);
+            newVar.setName(SYSTEMVAR + std::to_string(systemVarCount++));
 
+            if(ALU_FLAG == ALU_STATELESS) {
+                newVar.setDataNum(std::stoi(token->getValue()));
+            } else {
                 Variable var = temporaryArea.pop();
                 if(var.getType() == VAR_STR) throw SyntaxError("Strings and numbers cannot be operated on.");
                 int aluRetn = handleNumberCalculation(var.getDataNum(), std::stoi(token->getValue()));
-
                 newVar.setDataNum(aluRetn);
-                temporaryArea.push(newVar);
-                
                 ALU_FLAG = ALU_STATELESS;
             }
+            temporaryArea.push(newVar);
             break;
         }
 

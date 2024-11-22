@@ -79,15 +79,22 @@ std::shared_ptr<Token> getToken(std::stringstream& ss) {
         token->setType(TOK_STRDATA);
         std::string data;
 
-        while(true) {
+        while (true) {
             data += word;
-            if(word.back() == '"') break;
+            if (word.back() == '"') {
+                break;
+            }
             data += " ";
             ss >> word;
         }
 
-        token->setValue(data.substr(1, data.length() - 2));
+        if (data.length() >= 2) {
+            token->setValue(data.substr(1, data.length() - 2));
+        } else {
+            token->setValue("");
+        }
     }
+
     
     else if(token->getType() == TOK_EOF) {
         std::stringstream numStream(word);
