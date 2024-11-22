@@ -13,11 +13,11 @@ MINI CODE는 사용자들이 프로그래밍의 기본 개념을 명확히 이�
 
 
 # 실행 방법(윈도우 기준)
-1. minicode를 gcc로 컴파일 해줍니다
+1. minicode.c 파일을 c++로 컴파일 합니다.
 ```
-gcc minicode.c
+c++ minicode.cpp
 ```
-2. ./minicode.exe 파일명으로 프로그램을 실행합니다
+2. 컴파일된 minicode.cpp 파일을 실행합니다.
 ```
 ./a.exe test.mini
 ```
