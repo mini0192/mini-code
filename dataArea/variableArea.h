@@ -1,5 +1,6 @@
 #include <iostream>
-#include "dataAreaImpl.h"
+
+#include "dataArea.h"
 
 #pragma once
 

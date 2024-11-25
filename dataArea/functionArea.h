@@ -1,7 +1,8 @@
 #include <iostream>
 #include <vector>
 #include <memory>
-#include "../header/token.h"
+
+#include "../token/token.h"
 
 #pragma once
 

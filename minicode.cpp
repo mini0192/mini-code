@@ -4,11 +4,14 @@
 #include <cstring>
 #include <memory>
 
-#include "header/token.h"
-#include "header/tokenImpl.h"
-#include "header/error.h"
+#include "error/error.h"
+
+#include "token/token.h"
+#include "token/tokenChecker.h"
+
 #include "execute/execute.h"
-#include "execute/functionAreaImpl.h"
+
+#include "dataArea/functionArea.h"
 
 int main(int argc, char *argv[]) {
     if (argc < 2) {

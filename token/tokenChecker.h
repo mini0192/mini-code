@@ -4,7 +4,7 @@
 #include <memory>
 #include <stack>
 
-#include "error.h"
+#include "../error/error.h"
 #include "token.h"
 
 #pragma once

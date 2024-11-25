@@ -1,10 +1,11 @@
 #include <iostream>
 #include <memory>
 
-#include "../header/token.h"
-#include "variableAreaImpl.h"
-#include "functionAreaImpl.h"
-#include "temporaryAreaImpl.h"
+#include "../token/token.h"
+
+#include "../dataArea/variableArea.h"
+#include "../dataArea/functionArea.h"
+#include "../dataArea/temporaryArea.h"
 
 #pragma once
 
