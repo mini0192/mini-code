@@ -3,8 +3,6 @@
 
 #include "area/dataArea.h"
 
-DataArea dataArea;
-
 enum VariableType {
     VAR_NUM,
     VAR_STR,
@@ -16,17 +14,13 @@ enum VariableType {
 
 class Variable {
 private:
+    DataArea* dataArea;
     std::string name;
     VariableType VAR_TYPE;
     int pointer;
 
 public:
-    Variable() {}
-    Variable(std::string name, int pointer, VariableType type) :
-        name(name),
-        pointer(pointer),
-        VAR_TYPE(type)
-    {}
+    Variable() : dataArea(DataArea::getInstance()) {}
 
     std::string getName() {
         return name;
@@ -37,30 +31,30 @@ public:
     }
 
     std::string getDataStr() {
-        return dataArea.getStr(pointer);
+        return dataArea->getStr(pointer);
     }
 
     void setDataStr(std::string data) {
         if(VAR_TYPE != VAR_STR) throw SyntaxError("Types do not match. Note: The variable type is not \"str\"");
-        pointer = dataArea.pushStr(data);
+        pointer = dataArea->pushStr(data);
     }
 
     int getDataNum() {
-        return dataArea.getNumber(pointer);
+        return dataArea->getNumber(pointer);
     }
 
     void setDataNum(int data) {
         if(VAR_TYPE != VAR_NUM && VAR_TYPE != VAR_BOOL) throw SyntaxError("Types do not match. Note: The variable type is not \"num\" or \"bool\"");
-        pointer = dataArea.pushNumber(data);
+        pointer = dataArea->pushNumber(data);
     }
 
     int getDataFunc() {
-        return dataArea.getNumber(pointer);
+        return dataArea->getNumber(pointer);
     }
 
     void setDataFunc(int data) {
         if(VAR_TYPE != FUNCTION_DATA) throw SyntaxError("Types do not match. Note: The variable type is not \"num\" or \"bool\"");
-        pointer = dataArea.pushNumber(data);
+        pointer = dataArea->pushNumber(data);
     }
 
     VariableType getType() {
@@ -72,7 +66,7 @@ public:
     }
 
     int clear() {
-        dataArea.clearData(pointer);
+        dataArea->clearData(pointer);
     }
 };
 

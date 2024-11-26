@@ -3,9 +3,21 @@
 
 class DataArea {
 private:
+    static DataArea* instance;
+
     int topIndex;
     int maxSize;
     int* elements;
+
+    DataArea() :
+        topIndex(0),
+        maxSize(10),
+        elements(new int[maxSize])
+    {}
+
+    ~DataArea() {
+        delete[] elements;
+    }
 
     void resize() {
         maxSize *= 2;
@@ -18,14 +30,11 @@ private:
     }
 
 public:
-    DataArea() :
-        topIndex(0),
-        maxSize(10),
-        elements(new int[maxSize])
-    {}
-
-    ~DataArea() {
-        delete[] elements;
+    static DataArea* getInstance() {
+        if(instance == nullptr) {
+            instance = new DataArea();
+        }
+        return instance;
     }
 
     int pushNumber(int data) {
@@ -66,5 +75,7 @@ public:
         topIndex = index - 1;
     }
 };
+
+DataArea* DataArea::instance = nullptr;
 
 #endif
