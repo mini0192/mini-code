@@ -1,7 +1,7 @@
 #ifndef FUNCTIONAREA_H
 #define FUNCTIONAREA_H
 
-#include "../stack.h"
+#include "stack.h"
 #include "../function.h"
 
 class FunctionArea : public Stack<Function>{

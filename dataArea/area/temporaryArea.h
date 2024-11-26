@@ -1,14 +1,14 @@
 #ifndef TEMPORARYAREA_H
 #define TEMPORARYAREA_H
 
-#include "../stack.h"
+#include "stack.h"
 #include "../variable.h"
 
 class TemporaryArea : public Stack<Variable>{
 private:
     static TemporaryArea* instance;
     TemporaryArea() : Stack<Variable>() {}
-    
+
 public:
     static TemporaryArea* getInstance() {
         if(instance == nullptr) {

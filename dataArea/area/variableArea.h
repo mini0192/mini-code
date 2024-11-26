@@ -1,14 +1,14 @@
 #ifndef VARIABLEAREA_H
 #define VARIABLEAREA_H
 
-#include "../stack.h"
+#include "stack.h"
 #include "../variable.h"
 
 class VariableArea : public Stack<Variable> {
 private:
     static VariableArea* instance;
     VariableArea() : Stack<Variable>() {}
-    
+
 public:
     static VariableArea* getInstance() {
         if(instance == nullptr) {
