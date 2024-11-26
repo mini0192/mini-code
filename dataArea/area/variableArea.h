@@ -1,12 +1,8 @@
 #ifndef VARIABLEAREA_H
 #define VARIABLEAREA_H
 
-#include "dataArea.h"
 #include "stack.h"
-
 #include "../variable.h"
-
-extern DataArea dataArea;
 
 class VariableArea : public Stack<Variable> {
 private:
@@ -34,6 +30,7 @@ public:
         topIndex = bottomIndex - 1;
         Variable funcData = findByIndex(bottomIndex - 1);
         bottomIndex = funcData.getDataFunc();
+        funcData.clear();
     }
 
     Variable* findByName(std::string name) override {
@@ -47,11 +44,6 @@ public:
         if (findByName(data.getName())) throw SyntaxError("Duplicate variable name.");
         if (topIndex >= maxSize) resize();
         elements[topIndex++] = data;
-    }
-
-    Variable pop() override {
-        Variable data = elements[--topIndex];
-        return data;
     }
 };
 

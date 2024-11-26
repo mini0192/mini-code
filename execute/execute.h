@@ -167,6 +167,7 @@ public:
             if(!checkSystemVar(var.getName())) throw SyntaxError("No element to run \"out\".");
             if(var.getType() == VAR_STR) std::cout << var.getDataStr();
             if(var.getType() == VAR_NUM) std::cout << var.getDataNum();
+            var.clear();
             break;
         }
         case TOK_NEXT: {
@@ -194,6 +195,7 @@ public:
             if(!checkSystemVar(var.getName())) throw SyntaxError("No element to run \"if\".");
             if(var.getType() == VAR_STR) throw SyntaxError("The \"true\" and \"false\" values ​​of \"str \"are unknown.");
             if(var.getDataNum() < 1) return -1;
+            var.clear();
             break;
         }
 
@@ -214,6 +216,7 @@ public:
             variableArea->push(newVar);
 
             VAR_NAME_FLAG = false;
+            var.clear();
             break;
         }
         case TOK_TYPE_NUM: {
@@ -230,6 +233,7 @@ public:
             variableArea->push(newVar);
 
             VAR_NAME_FLAG = false;
+            var.clear();
             break;
         }
         case TOK_TYPE_STR: {
@@ -245,6 +249,7 @@ public:
             variableArea->push(newVar);
 
             VAR_NAME_FLAG = false;
+            var.clear();
             break;
         }
 
@@ -308,6 +313,7 @@ public:
                 int aluRetn = handleNumberCalculation(var.getDataNum(), std::stoi(token->getValue()));
                 newVar.setDataNum(aluRetn);
                 ALU_FLAG = ALU_STATELESS;
+                var.clear();
             }
             temporaryArea->push(newVar);
             break;

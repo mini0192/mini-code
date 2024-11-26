@@ -28,10 +28,6 @@ public:
         if (topIndex >= maxSize) resize();
         elements[topIndex++] = data;
     }
-
-    Function pop() {
-        return elements[--topIndex];
-    }
 };
 
 FunctionArea* FunctionArea::instance = nullptr;

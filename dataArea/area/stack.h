@@ -33,7 +33,10 @@ public:
 
     virtual T* findByName(std::string name) = 0;
     virtual void push(T data) = 0;
-    virtual T pop() = 0;
+
+    T pop() {
+        return elements[--topIndex];
+    }
 
     T findByIndex(int index) {
         return elements[index];

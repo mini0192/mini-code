@@ -71,8 +71,8 @@ public:
         this->VAR_TYPE = type;
     }
 
-    int getPointer() {
-        return pointer;
+    int clear() {
+        dataArea.clearData(pointer);
     }
 };
 

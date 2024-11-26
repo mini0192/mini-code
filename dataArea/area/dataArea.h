@@ -4,7 +4,6 @@
 class DataArea {
 private:
     int topIndex;
-
     int maxSize;
     int* elements;
 
@@ -64,10 +63,7 @@ public:
     }
 
     void clearData(int index) {
-        std::cout << "TOP: " << topIndex << std::endl;
-        std::cout << "INDEX: " << index << std::endl;
-        std::cout << std::endl;
-        topIndex = index;
+        topIndex = index - 1;
     }
 };
 

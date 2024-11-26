@@ -1,9 +1,7 @@
 #ifndef TEMPORARYAREA_H
 #define TEMPORARYAREA_H
 
-#include "dataArea.h"
 #include "stack.h"
-
 #include "../variable.h"
 
 extern DataArea dataArea;
@@ -47,11 +45,6 @@ public:
         if (findByName(data.getName())) throw SyntaxError("Duplicate variable name.");
         if (topIndex >= maxSize) resize();
         elements[topIndex++] = data;
-    }
-
-    Variable pop() override {
-        Variable data = elements[--topIndex];
-        return data;
     }
 };
 
