@@ -70,6 +70,10 @@ public:
     void setType(VariableType type) {
         this->VAR_TYPE = type;
     }
+
+    int getPointer() {
+        return pointer;
+    }
 };
 
 #endif

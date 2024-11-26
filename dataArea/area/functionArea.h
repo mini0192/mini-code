@@ -17,16 +17,20 @@ public:
         return instance;
     }
 
-    void push(Function data) {
-        if (topIndex >= maxSize) resize();
-        elements[topIndex++] = data;
-    }
-
     Function* findByName(std::string name) {
         for (int i = 0; i < topIndex; i++) {
             if (this->elements[i].getName() == name) return &this->elements[i];
         }
         return nullptr;
+    }
+
+    void push(Function data) {
+        if (topIndex >= maxSize) resize();
+        elements[topIndex++] = data;
+    }
+
+    Function pop() {
+        return elements[--topIndex];
     }
 };
 

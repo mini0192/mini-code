@@ -1,11 +1,9 @@
-#include <iostream>
-
-#pragma once
+#ifndef DATAAREA_H
+#define DATAAREA_H
 
 class DataArea {
 private:
-    int startPoint;
-    int endPoint;
+    int topIndex;
 
     int maxSize;
     int* elements;
@@ -13,7 +11,7 @@ private:
     void resize() {
         maxSize *= 2;
         int* newElements = new int[maxSize];
-        for (int i = 0; i <= endPoint; ++i) {
+        for (int i = 0; i <= topIndex; ++i) {
             newElements[i] = elements[i];
         }
         delete[] elements;
@@ -22,9 +20,8 @@ private:
 
 public:
     DataArea() :
+        topIndex(0),
         maxSize(10),
-        startPoint(0),
-        endPoint(0),
         elements(new int[maxSize])
     {}
 
@@ -33,11 +30,11 @@ public:
     }
 
     int pushNumber(int data) {
-        int start = endPoint;
-        if(endPoint >= maxSize) {
+        int start = topIndex;
+        if(topIndex >= maxSize) {
             resize();
         }
-        this->elements[endPoint++] = data;
+        this->elements[topIndex++] = data;
         return start;
     }
 
@@ -46,23 +43,32 @@ public:
     }
 
     int pushStr(std::string data) {
-        int start = endPoint;
-        while(endPoint + data.length() >= maxSize) {
+        int start = topIndex;
+        while(topIndex + data.length() >= maxSize) {
             resize();
         }
         for (size_t i = 0; i < data.length(); ++i) {
-            this->elements[endPoint++] = static_cast<int>(data[i]);
+            this->elements[topIndex++] = static_cast<int>(data[i]);
         }
-        this->elements[endPoint++] = 0;
+        this->elements[topIndex++] = 0;
         return start;
     }
 
     std::string getStr(int index) {
         std::string result;
-        while (index <= endPoint && elements[index] != 0) {
+        while (index <= topIndex && elements[index] != 0) {
             result += static_cast<char>(elements[index]);
             index++;
         }
         return result;
     }
+
+    void clearData(int index) {
+        std::cout << "TOP: " << topIndex << std::endl;
+        std::cout << "INDEX: " << index << std::endl;
+        std::cout << std::endl;
+        topIndex = index;
+    }
 };
+
+#endif
