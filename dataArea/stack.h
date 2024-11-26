@@ -1,6 +1,9 @@
+#ifndef STACK_H
+#define STACK_H
+
 template <typename T>
 class Stack {
-private:
+protected:
     int maxSize;
     T* elements;
     int topIndex;
@@ -24,7 +27,7 @@ public:
         elements(new T[maxSize])
     {}
 
-    ~Stacka() {
+    ~Stack() {
         delete[] elements;
     }
 
@@ -47,3 +50,5 @@ public:
         return topIndex;
     }
 };
+
+#endif

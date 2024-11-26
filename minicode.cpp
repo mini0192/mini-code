@@ -11,8 +11,6 @@
 
 #include "execute/execute.h"
 
-#include "dataArea/functionArea.h"
-
 int main(int argc, char *argv[]) {
     if (argc < 2) {
         std::cout << "File Error: File information is missing." << std::endl;
