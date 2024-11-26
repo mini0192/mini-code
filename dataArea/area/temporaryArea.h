@@ -4,8 +4,6 @@
 #include "stack.h"
 #include "../variable.h"
 
-extern DataArea dataArea;
-
 class TemporaryArea : public Stack<Variable>{
 private:
     static TemporaryArea* instance;
