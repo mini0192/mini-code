@@ -30,4 +30,5 @@ func div
     stop data2 / data1
 done
 
+# next out "test"
 next out call add 20 4

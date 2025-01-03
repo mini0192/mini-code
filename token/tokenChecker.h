@@ -136,8 +136,8 @@ std::shared_ptr<Token> getNextToken(std::string src) {
     std::string part;
 
     std::shared_ptr<Token> token = getToken(ss);
-    tokenPrint(token);
-    std::cout << std::endl;
+    // tokenPrint(token);
+    // std::cout << std::endl;
 
     return token;
 }
