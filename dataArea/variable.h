@@ -20,7 +20,15 @@ private:
     int pointer;
 
 public:
-    Variable() : dataArea(DataArea::getInstance()) {}
+    Variable() :
+        dataArea(DataArea::getInstance()),
+        VAR_TYPE(VAR_NOT)
+    {}
+
+    bool isValid() {
+        if(VAR_TYPE == VAR_NOT) return false;
+        return true;
+    }
 
     std::string getName() {
         return name;

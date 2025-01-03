@@ -10,6 +10,9 @@
 #include "../dataArea/variable.h"
 #include "../dataArea/function.h"
 
+#include "token/inout.h"
+#include "config.h"
+
 #pragma once
 
 #define SYSTEMVAR "SYSTEMVAR_"
@@ -25,9 +28,6 @@ enum ALUType {
 
 class Execute {
 private:
-    std::string VAR_NAME_REG;
-    bool VAR_NAME_FLAG;
-
     std::string STRDATA_REG;
     bool STRDATA_FLAG;
 
@@ -37,27 +37,17 @@ private:
     int ALU_REG;
     ALUType ALU_FLAG;
 
-    int systemVarCount;
-
     VariableArea* variableArea;
     TemporaryArea* temporaryArea;
     FunctionArea* functionArea;
     Function function;
 
-    int handleNumberCalculation(int num1, int num2) {
-        if(ALU_FLAG == ALU_ADD) return num2 + num1;
-        if(ALU_FLAG == ALU_SUB) return num2 - num1;
-        if(ALU_FLAG == ALU_DIV) return num2 / num1;
-        if(ALU_FLAG == ALU_MUL) return num2 * num1;
-        if(ALU_FLAG == ALU_EQUAL) return num2 == num1;
-        ALU_FLAG = ALU_STATELESS;
-    }
-
-    bool isNumber(const std::string& s) {
-        for (char const &ch : s) {
-            if (std::isdigit(ch) == 0) return false;
-        }
-        return true;
+    int calculator(int data1, int data2) {
+        if(ALU_FLAG == ALU_ADD) return data2 + data1;
+        if(ALU_FLAG == ALU_SUB) return data2 - data1;
+        if(ALU_FLAG == ALU_DIV) return data2 / data1;
+        if(ALU_FLAG == ALU_MUL) return data2 * data1;
+        if(ALU_FLAG == ALU_EQUAL) return data2 == data1;
     }
 
     bool checkSystemVar(const std::string& str) {
@@ -71,11 +61,9 @@ public:
         temporaryArea(TemporaryArea::getInstance()),
         functionArea(FunctionArea::getInstance()),
 
-        VAR_NAME_FLAG(false),
         STRDATA_FLAG(false),
         NUM_FLAG(false),
-        ALU_FLAG(ALU_STATELESS),
-        systemVarCount(0)
+        ALU_FLAG(ALU_STATELESS)
     {}
 
     int execute(std::shared_ptr<Token> token) {
@@ -95,16 +83,14 @@ public:
         switch (token->getType())
         {
         case TOK_FUNCTION: {
-            if(!VAR_NAME_FLAG) throw SyntaxError("Function name is missing.");
-            function.setName(VAR_NAME_REG);
-            VAR_NAME_FLAG = false;
+            function.setName(token->getValue());
             break;
         }
         case TOK_CALL: {
-            if(!VAR_NAME_FLAG) throw SyntaxError("Function name is missing.");
-            Function* nextFunction = functionArea->findByName(VAR_NAME_REG);
-            for(int i = 0; i < nextFunction->getLineSize(); i++) {
-                if(execute(nextFunction->getLine(i)) == -2) break;;
+            Function nextFunction = functionArea->findByName(token->getValue());
+
+            for(int i = 0; i < nextFunction.getLineSize(); i++) {
+                if(execute(nextFunction.getLine(i)) == -2) break;;
             }
             break;
         }
@@ -148,7 +134,6 @@ public:
         case TOK_TRUE: {
             Variable newVar;
             newVar.setType(VAR_BOOL);
-            newVar.setName(SYSTEMVAR + std::to_string(systemVarCount++));
             newVar.setDataNum(true);
             temporaryArea->push(newVar);
             break;
@@ -156,7 +141,6 @@ public:
         case TOK_FALSE: {
             Variable newVar;
             newVar.setType(VAR_BOOL);
-            newVar.setName(SYSTEMVAR + std::to_string(systemVarCount++));
             newVar.setDataNum(false);
             temporaryArea->push(newVar);
             break;
@@ -164,34 +148,23 @@ public:
 
         case TOK_OUT: {
             Variable var = temporaryArea->pop();
-            if(!checkSystemVar(var.getName())) throw SyntaxError("No element to run \"out\".");
-            if(var.getType() == VAR_STR) std::cout << var.getDataStr();
-            if(var.getType() == VAR_NUM) std::cout << var.getDataNum();
+            out(var);
             var.clear();
             break;
         }
         case TOK_NEXT: {
-            std::cout << std::endl;
+            next();
             break;
         }
         case TOK_IN: {
-            std::string data;
-            std::cin >> data;
-
-            Variable newVar;
-            newVar.setName(SYSTEMVAR + std::to_string(systemVarCount++));
-            if(isNumber(data)) {
-                newVar.setType(VAR_NUM);
-                newVar.setDataNum(std::stoi(data));
-            } else {
-                newVar.setType(VAR_STR);
-                newVar.setDataStr(data);
-            }
+            Variable newVar = in();
             temporaryArea->push(newVar);
             break;
         }
         case TOK_IF: {
             Variable var = temporaryArea->pop();
+            if(!var.isValid()) throw SyntaxError("No element to run \"if\".");
+
             if(!checkSystemVar(var.getName())) throw SyntaxError("No element to run \"if\".");
             if(var.getType() == VAR_STR) throw SyntaxError("The \"true\" and \"false\" values ​​of \"str \"are unknown.");
             if(var.getDataNum() < 1) return -1;
@@ -200,122 +173,81 @@ public:
         }
 
         case TOK_TYPE_BOOL: {
-            if(!VAR_NAME_FLAG) throw SyntaxError("Missing variable name or duplicate variable name..");
             Variable var = temporaryArea->pop();
-            if(!checkSystemVar(var.getName())) throw SyntaxError("The variable is not initialized. [It is not a system variable (" + var.getName() + ")]");
-            if(var.getType() != VAR_NUM && var.getType() != VAR_BOOL) throw SyntaxError("Types do not match. Note: The variable type is not \"num\" or \"bool\"");
-
-            Variable newVar;
-            newVar.setType(VAR_BOOL);
-            newVar.setName(VAR_NAME_REG);
-
-            int data = var.getDataNum();
-            if(data != 0 && data != 1) throw SyntaxError("The bool data type can only store 0 or 1.");
-
-            newVar.setDataNum(data);
-            variableArea->push(newVar);
-
-            VAR_NAME_FLAG = false;
-            var.clear();
+            
+            if(!isBoolType(var)) throw SyntaxError("Types do not match. Note: The variable type is not \"bool\"");
+            var.setName(token->getValue());
+            variableArea->push(var);
             break;
         }
         case TOK_TYPE_NUM: {
-            if(!VAR_NAME_FLAG) throw SyntaxError("Missing variable name or duplicate variable name..");
             Variable var = temporaryArea->pop();
-            if(!checkSystemVar(var.getName())) throw SyntaxError("The variable is not initialized. [It is not a system variable (" + var.getName() + ")]");
-            if(var.getType() != VAR_NUM && var.getType() != VAR_BOOL) throw SyntaxError("Types do not match. Note: The variable type is not \"num\" or \"bool\"");
-
-            Variable newVar;
-            newVar.setType(VAR_NUM);
-            newVar.setName(VAR_NAME_REG);
-
-            newVar.setDataNum(var.getDataNum());
-            variableArea->push(newVar);
-
-            VAR_NAME_FLAG = false;
-            var.clear();
+            
+            if(!isNumType(var)) throw SyntaxError("Types do not match. Note: The variable type is not \"num\"");
+            var.setName(token->getValue());
+            variableArea->push(var);
             break;
         }
         case TOK_TYPE_STR: {
-            if(!VAR_NAME_FLAG) throw SyntaxError("Missing variable name or duplicate variable name..");
             Variable var = temporaryArea->pop();
-            if(!checkSystemVar(var.getName())) throw SyntaxError("The variable is not initialized. [It is not a system variable (" + var.getName() + ")]");
-            if(var.getType() != VAR_STR) throw SyntaxError("Types do not match. Note: The variable type is not \"str\"");
 
-            Variable newVar;
-            newVar.setType(VAR_STR);
-            newVar.setName(VAR_NAME_REG);
-            newVar.setDataStr(var.getDataStr());
-            variableArea->push(newVar);
-
-            VAR_NAME_FLAG = false;
-            var.clear();
+            if(!isStrType(var)) throw SyntaxError("Types do not match. Note: The variable type is not \"str\"");
+            var.setName(token->getValue());
+            variableArea->push(var);
             break;
         }
 
         case TOK_STR: {
-            Variable* var = variableArea->findByName(token->getValue());
-            if(var) {
-                if(var->getType() == VAR_STR) {
-                    Variable newVar;
-                    newVar.setType(VAR_STR);
-                    newVar.setName(SYSTEMVAR + std::to_string(systemVarCount++));
-                    newVar.setDataStr(var->getDataStr());
-                    temporaryArea->push(newVar);
+            Variable var = variableArea->findByName(token->getValue());
+            if(var.isValid()) {
+                if(ALU_FLAG == ALU_STATELESS) {
+                    temporaryArea->push(var);
+                    break;
                 } else {
-                    if(ALU_FLAG == ALU_STATELESS) {
-                        Variable newVar;
-                        newVar.setType(VAR_NUM);
-                        newVar.setName(SYSTEMVAR + std::to_string(systemVarCount++));
-                        newVar.setDataNum(var->getDataNum());
-                        temporaryArea->push(newVar);
-                    } else {
-                        Variable newVar;
-                        newVar.setType(VAR_NUM);
-                        newVar.setName(SYSTEMVAR + std::to_string(systemVarCount++));
+                    Variable targetVar = temporaryArea->pop();
+                    if(targetVar.getType() == VAR_STR) throw SyntaxError("Strings and numbers cannot be operated on.");
+                    int aluRtn = calculator(var.getDataNum(), targetVar.getDataNum());
+                    targetVar.clear();
 
-                        Variable lastVar = temporaryArea->pop();
-                        if(lastVar.getType() == VAR_STR) throw SyntaxError("Strings and numbers cannot be operated on.");
-                        int aluRetn = handleNumberCalculation(lastVar.getDataNum(), var->getDataNum());
-
-                        newVar.setDataNum(aluRetn);
-                        temporaryArea->push(newVar);
-                        
-                        ALU_FLAG = ALU_STATELESS;
-                    }
+                    Variable newVar;
+                    newVar.setType(VAR_NUM);
+                    ALU_FLAG = ALU_STATELESS;
+                    
+                    newVar.setDataNum(aluRtn);
+                    temporaryArea->push(newVar);
                 }
-                break;
             }
-            VAR_NAME_REG = token->getValue();
-            VAR_NAME_FLAG = true;
             break;
         }
 
         case TOK_STRDATA: {
             Variable newVar;
             newVar.setType(VAR_STR);
-            newVar.setName(SYSTEMVAR + std::to_string(systemVarCount++));
             newVar.setDataStr(token->getValue());
             temporaryArea->push(newVar);
             break;
         }
 
         case TOK_NUMBER: {
-            Variable newVar;
-            newVar.setType(VAR_NUM);
-            newVar.setName(SYSTEMVAR + std::to_string(systemVarCount++));
-
             if(ALU_FLAG == ALU_STATELESS) {
+                Variable newVar;
+                newVar.setType(VAR_NUM);
+
                 newVar.setDataNum(std::stoi(token->getValue()));
+                temporaryArea->push(newVar);
             } else {
                 Variable var = temporaryArea->pop();
                 if(var.getType() == VAR_STR) throw SyntaxError("Strings and numbers cannot be operated on.");
-                int aluRetn = handleNumberCalculation(var.getDataNum(), std::stoi(token->getValue()));
-                newVar.setDataNum(aluRetn);
-                ALU_FLAG = ALU_STATELESS;
+                int aluRtn = calculator(var.getDataNum(), std::stoi(token->getValue()));
                 var.clear();
+
+                Variable newVar;
+                newVar.setType(VAR_NUM);
+                ALU_FLAG = ALU_STATELESS;
+                
+                newVar.setDataNum(aluRtn);
+                temporaryArea->push(newVar);
             }
-            temporaryArea->push(newVar);
             break;
         }
 

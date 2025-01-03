@@ -37,8 +37,12 @@ std::shared_ptr<Token> getToken(std::stringstream& ss) {
         token->setType(TOK_EQUAL);
     }
 
-    else if (word == "function") {
+    else if (word == "func") {
         token->setType(TOK_FUNCTION);
+        std::shared_ptr<Token> rtn = getToken(ss);
+        token->setValue(rtn->getValue());
+        token->setNextToken(rtn->getNextToken());
+        return token;
     } else if (word == "parameter") {
         token->setType(TOK_PARAMETER);
     } else if (word == "stop") {
@@ -47,8 +51,10 @@ std::shared_ptr<Token> getToken(std::stringstream& ss) {
         token->setType(TOK_DONE);
     } else if (word == "call") {
         token->setType(TOK_CALL);
-    } else if (word == "give") {
-        token->setType(TOK_GIVE);
+        std::shared_ptr<Token> rtn = getToken(ss);
+        token->setValue(rtn->getValue());
+        token->setNextToken(rtn->getNextToken());
+        return token;
     }
     
     else if (word == "true") {
@@ -59,12 +65,22 @@ std::shared_ptr<Token> getToken(std::stringstream& ss) {
     
     else if (word == "num") {
         token->setType(TOK_TYPE_NUM);
+        std::shared_ptr<Token> rtn = getToken(ss);
+        token->setValue(rtn->getValue());
+        token->setNextToken(rtn->getNextToken());
+        return token;
     } else if (word == "str") {
         token->setType(TOK_TYPE_STR);
+        std::shared_ptr<Token> rtn = getToken(ss);
+        token->setValue(rtn->getValue());
+        token->setNextToken(rtn->getNextToken());
+        return token;
     } else if (word == "bool") {
         token->setType(TOK_TYPE_BOOL);
-    } else if (word == "save") {
-        token->setType(TOK_SAVE);
+        std::shared_ptr<Token> rtn = getToken(ss);
+        token->setValue(rtn->getValue());
+        token->setNextToken(rtn->getNextToken());
+        return token;
     }
     
     else if (word == "out") {
@@ -120,8 +136,8 @@ std::shared_ptr<Token> getNextToken(std::string src) {
     std::string part;
 
     std::shared_ptr<Token> token = getToken(ss);
-    // tokenPrint(token);
-    // std::cout << std::endl;
+    tokenPrint(token);
+    std::cout << std::endl;
 
     return token;
 }

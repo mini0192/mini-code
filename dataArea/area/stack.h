@@ -31,7 +31,7 @@ public:
         delete[] elements;
     }
 
-    virtual T* findByName(std::string name) = 0;
+    virtual T findByName(std::string name) = 0;
     virtual void push(T data) = 0;
 
     T pop() {

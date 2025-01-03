@@ -34,6 +34,7 @@ int main(int argc, char *argv[]) {
     try {
         while (std::getline(file, line)) {
             if(line == "") continue;
+            if(line[0] == '#') continue;
             lineNumber++;
             // std::cout << "running[" << lineNumber << "]" << std::endl;
             std::shared_ptr<Token> token = getNextToken(line);

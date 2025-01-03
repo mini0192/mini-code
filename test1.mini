@@ -1,8 +1,0 @@
-function print
-    num data
-    parameter
-    stop 0 if data == 10
-    next out "Good"
-done
-
-call print in

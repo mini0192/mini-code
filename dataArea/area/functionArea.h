@@ -17,11 +17,11 @@ public:
         return instance;
     }
 
-    Function* findByName(std::string name) {
+    Function findByName(std::string name) {
         for (int i = 0; i < topIndex; i++) {
-            if (this->elements[i].getName() == name) return &this->elements[i];
+            if (this->elements[i].getName() == name) return this->elements[i];
         }
-        return nullptr;
+        return Function();
     }
 
     void push(Function data) {

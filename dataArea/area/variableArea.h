@@ -33,15 +33,16 @@ public:
         funcData.clear();
     }
 
-    Variable* findByName(std::string name) override {
+    Variable findByName(std::string name) override {
         for (int i = 0; i < topIndex; i++) {
-            if (this->elements[i].getName() == name) return &this->elements[i];
+            if (this->elements[i].getName() == name) return this->elements[i];
         }
-        return nullptr;
+        return Variable();
     }
 
     void push(Variable data) override {
-        if (findByName(data.getName())) throw SyntaxError("Duplicate variable name.");
+        Variable checker = findByName(data.getName());
+        if (checker.isValid()) throw SyntaxError("Duplicate variable name.");
         if (topIndex >= maxSize) resize();
         elements[topIndex++] = data;
     }

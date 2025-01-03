@@ -55,24 +55,28 @@ public:
         while(topIndex + data.length() >= maxSize) {
             resize();
         }
+        
         for (size_t i = 0; i < data.length(); ++i) {
             this->elements[topIndex++] = static_cast<int>(data[i]);
         }
+        
         this->elements[topIndex++] = 0;
         return start;
     }
 
     std::string getStr(int index) {
         std::string result;
+
         while (index <= topIndex && elements[index] != 0) {
             result += static_cast<char>(elements[index]);
             index++;
         }
+        
         return result;
     }
 
     void clearData(int index) {
-        topIndex = index - 1;
+        topIndex = index;
     }
 };
 

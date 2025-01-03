@@ -1,46 +1,33 @@
-function add
+func add
     num data1
     num data2
     parameter
 
-    stop data1 + data2
+    stop data2 + data1
 done
 
-function sub
+func sub
     num data1
     num data2
     parameter
 
-    stop data1 - data2
+    stop data2 - data1
 done
 
-function div
-    parameter
-
-    stop data1 / data2
-done
-
-function mul
+func mul
     num data1
     num data2
     parameter
 
-    stop data1 * data2
+    stop data2 * data1
 done
 
-function printNum
-    num data
+func div
+    num data1
+    num data2
     parameter
 
-    next out data
+    stop data2 / data1
 done
 
-function printStr
-    str data
-    parameter
-
-    next out data
-done
-
-save num rtnData call mul 5 5
-call printNum rtnData
+next out call add 20 4
