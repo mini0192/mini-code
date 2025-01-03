@@ -30,7 +30,7 @@ c++ minicode.cpp
 - **str:** 문자열 데이터를 저장합니다.
 - **bool:** 논리값을 저장합니다(true 혹은 false).
 
-## 기본 예제
+### 기본 예제
 ```
 num data1 30
 str data2 "it is str"
@@ -64,6 +64,15 @@ out name
 out punctuation
 ```
 위의 예제에서는 여러개의 문자열 변수를 출력합니다. 각 변수는 따로 출력되며 출력된 결과는 "Hello Mini!"가 됩니다.
+
+## 주석
+주석은 설명을 다는 역할을 합니다. minicode는 #을 만나게 되면 해당 줄은 실행하지 않습니다.
+
+### 기본 예제
+```
+# out "Hello, World!"
+```
+위에 예제에서는 아무것도 실행되지 않습니다.
 
 ## 개행(next)
 "next" 명령어는 출력을 할 때 줄을 바꾸는, 즉 개행을 수행하는 역할을 합니다. 이를 통해 새로운 줄에서 출력을 시작할 수 있습니다.
@@ -218,7 +227,7 @@ The number is less than 10.
 
 ### 함수 정의
 ```
-function add
+func add
     num data1
     num data2
     parameter
@@ -235,8 +244,8 @@ next out call add 3 5
 이 명령어는 add 함수를 호출하고, 3과 5를 매개변수로 전달하여 결과를 출력합니다. 최종적으로 8이 출력됩니다.
 
 ### 함수의 구조 설명
-1. 함수 시작(function add)
-- function 키워드로 함수 정의가 시작됩니다.
+1. 함수 시작(func add)
+- func 키워드로 함수 정의가 시작됩니다.
 - add 는 함수의 이름입니다.
 
 2. 매개변수 정의
@@ -252,7 +261,7 @@ next out call add 3 5
 
 ### 매개변수가 없는 함수
 ```
-function greet
+func greet
     parameter
     next out "Hello, World!"
 done
@@ -263,7 +272,7 @@ call greet
 
 ### 실습 예제
 ```
-function print
+func print
     num data
     parameter
     stop 0 if data == 10
